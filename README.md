@@ -52,17 +52,18 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 
 ---
 
-## 💻 Hướng Dẫn Chạy Trên Máy Cục Bộ
+## 🚀 Hướng Dẫn Triển Khai (Deployment)
 
-1. Cài đặt các gói phụ thuộc:
+### 1. Triển Khai Cục Bộ (Local Development)
+
 ```bash
+# Cài đặt dependencies
 npm install
-```
 
-2. Chạy Server phát triển:
-```bash
+# Chạy development server
 npm run dev
 ```
+
 Truy cập ứng dụng:
 - **Trang chủ:** `http://localhost:3000`
 - **Mẫu thiệp:** `http://localhost:3000/templates`
@@ -72,9 +73,7 @@ Truy cập ứng dụng:
 - **Admin Portal:** `http://localhost:3000/admin`
 - **Swagger UI:** `http://localhost:3000/swagger-ui`
 
----
-
-## 🐳 Khởi Chạy Bằng Docker
+### 2. Triển Khai Bằng Docker (Containerization)
 
 ```bash
 # Build image và chạy container
@@ -87,7 +86,49 @@ docker compose logs -f
 docker compose down
 ```
 
+### 3. Triển Khai Lên Vercel (Production Cloud)
+
+1. **Đẩy mã nguồn lên GitHub**:
+   ```bash
+   git push origin main
+   ```
+2. **Import Project trên Vercel Dashboard**:
+   - Truy cập [vercel.com](https://vercel.com) → Chọn **Add New Project** → Chọn repo `VuTuanAn1403/ThietKeThiep`.
+   - **Framework Preset**: Chọn `Next.js`.
+   - **Root Directory**: `./` (thư mục gốc chứa `package.json`).
+   - **Build Command**: `npm run build`
+   - **Install Command**: `npm ci`
+3. **Cấu hình Environment Variables** trên Vercel:
+   - Thêm các biến môi trường từ mục danh sách bên dưới (Supabase URL, Anon Key, Site URL,...).
+4. **Deploy**:
+   - Nhấn **Deploy** và đợi quá trình build hoàn tất.
+5. **Cấu hình Supabase Authentication URL**:
+   - Truy cập Supabase Dashboard → **Authentication** → **URL Configuration**.
+   - Đặt **Site URL** thành domain Vercel của bạn (ví dụ: `https://thietkethiep.vercel.app`).
+   - Thêm Redirect URLs: `https://thietkethiep.vercel.app/**` và `https://thietkethiep.vercel.app/reset-password`.
+
 ---
+
+## 🔑 Danh Sách Biến Môi Trường (Environment Variables)
+
+### Biến Công Khai (Public - Client & Server)
+- `NEXT_PUBLIC_SUPABASE_URL`: Địa chỉ API Supabase project.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Anon public key của Supabase.
+- `NEXT_PUBLIC_SITE_URL`: Domain chính thức của website (VD: `https://nhacotiec.vn` hoặc `https://<project>.vercel.app`).
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: (Tùy chọn) Cloudflare Turnstile CAPTCHA site key.
+- `NEXT_PUBLIC_SENTRY_DSN`: (Tùy chọn) Sentry client DSN.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: (Tùy chọn) Google Analytics 4 Measurement ID.
+
+### Biến Bảo Mật Server (Server-Only Secrets - Không bao giờ đưa vào client bundle)
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role secret key của Supabase.
+- `TURNSTILE_SECRET_KEY`: (Tùy chọn) Cloudflare Turnstile secret key.
+- `SENTRY_DSN`: (Tùy chọn) Sentry server DSN.
+- `ADMIN_EMAIL`: (Tùy chọn) Email quản trị viên khởi tạo ban đầu.
+- `ADMIN_PASSWORD`: (Tùy chọn) Mật khẩu quản trị viên khởi tạo ban đầu.
+- `PAYMENT_BANK_NAME`: (Tùy chọn) Tên ngân hàng nhận chuyển khoản.
+- `PAYMENT_ACCOUNT_NUMBER`: (Tùy chọn) Số tài khoản ngân hàng nhận chuyển khoản.
+- `PAYMENT_ACCOUNT_NAME`: (Tùy chọn) Tên chủ tài khoản nhận chuyển khoản.
+- `PAYMENT_QR_IMAGE`: (Tùy chọn) URL hình ảnh mã QR chuyển khoản mặc định.
 
 ## 🧪 Kiểm Thử & Đảm Bảo Chất Lượng (QA)
 

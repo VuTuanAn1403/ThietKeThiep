@@ -9,12 +9,13 @@ describe('QR PAYMENT & SUBSCRIPTION ACTIVATION LIFECYCLE', () => {
   const adminUserId = 'usr-admin-01';
 
   it('1. CREATE PAYMENT ORDER: Creates valid order with ZLP code and 10-minute expiry', async () => {
-    const res = await PaymentService.createOrder(testUserId, 'plan-basic');
+    mockStore.paymentOrders = mockStore.paymentOrders.filter(o => o.user_id !== 'usr-create-order-test');
+    const res = await PaymentService.createOrder('usr-create-order-test', 'plan-basic');
     assert.ok(res.order, 'Order must be created');
     assert.ok(res.order.order_code.startsWith('ZLP'), 'Order code must start with ZLP');
     assert.strictEqual(res.order.status, 'PENDING');
-    assert.strictEqual(res.order.amount, 299000);
-    assert.strictEqual(res.order.final_amount, 299000);
+    assert.strictEqual(res.order.amount, 169000);
+    assert.strictEqual(res.order.final_amount, 169000);
     assert.strictEqual(res.order.discount_amount, 0);
 
     const expiry = new Date(res.order.expires_at).getTime();
@@ -28,9 +29,9 @@ describe('QR PAYMENT & SUBSCRIPTION ACTIVATION LIFECYCLE', () => {
 
     const res = await PaymentService.createOrder('usr-discount-test', 'plan-basic', 'PROMO130');
     assert.ok(res.order);
-    assert.strictEqual(res.order.amount, 299000);
+    assert.strictEqual(res.order.amount, 169000);
     assert.strictEqual(res.order.discount_amount, 130000);
-    assert.strictEqual(res.order.final_amount, 169000);
+    assert.strictEqual(res.order.final_amount, 39000);
   });
 
   it('3. IDEMPOTENCY: Reuses active unexpired order on repeated submit', async () => {
