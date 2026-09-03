@@ -36,16 +36,23 @@ export default function CountdownSection({ invitation }: Props) {
 
   const isExpired = timeLeft && timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
 
+  const units = [
+    { value: timeLeft?.days, label: 'Ngày' },
+    { value: timeLeft?.hours, label: 'Giờ' },
+    { value: timeLeft?.minutes, label: 'Phút' },
+    { value: timeLeft?.seconds, label: 'Giây' },
+  ];
+
   return (
-    <div className="py-16 px-6 bg-[#FFFDF9] text-center border-b border-[#E8DFD8]">
-      <div className="max-w-2xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#B76E79]">
-            <Clock className="w-4 h-4" />
-            <span>Đếm Ngược Thời Gian</span>
+    <div className="py-24 px-6 text-center">
+      <div className="max-w-2xl mx-auto space-y-10">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#E85B6A]">
+            <Clock className="w-3.5 h-3.5" />
+            <span>ĐẾM NGƯỢC THỜI GIAN</span>
           </div>
           <h2
-            className="text-3xl sm:text-4xl font-bold text-[#292624]"
+            className="text-3xl sm:text-5xl font-serif font-bold text-[#1F1B1C] leading-tight"
             style={{ fontFamily: invitation.heading_font || 'Cormorant Garamond' }}
           >
             {isExpired ? 'Sự kiện đã bắt đầu ❤️' : 'Cùng Đếm Ngược Đến Ngày Vui'}
@@ -53,25 +60,33 @@ export default function CountdownSection({ invitation }: Props) {
         </div>
 
         {timeLeft && !isExpired && (
-          <div className="grid grid-cols-4 gap-3 sm:gap-6 max-w-lg mx-auto">
-            <div className="bg-white p-4 rounded-2xl border border-[#E8DFD8] shadow-sm">
-              <span className="block text-3xl sm:text-4xl font-bold text-[#B76E79] font-mono">{timeLeft.days}</span>
-              <span className="text-xs text-gray-500 font-medium">Ngày</span>
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-[#E8DFD8] shadow-sm">
-              <span className="block text-3xl sm:text-4xl font-bold text-[#B76E79] font-mono">{timeLeft.hours}</span>
-              <span className="text-xs text-gray-500 font-medium">Giờ</span>
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-[#E8DFD8] shadow-sm">
-              <span className="block text-3xl sm:text-4xl font-bold text-[#B76E79] font-mono">{timeLeft.minutes}</span>
-              <span className="text-xs text-gray-500 font-medium">Phút</span>
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-[#E8DFD8] shadow-sm">
-              <span className="block text-3xl sm:text-4xl font-bold text-[#B76E79] font-mono">{timeLeft.seconds}</span>
-              <span className="text-xs text-gray-500 font-medium">Giây</span>
-            </div>
+          <div className="grid grid-cols-4 gap-4 sm:gap-8 max-w-md mx-auto">
+            {units.map((unit, idx) => (
+              <div key={idx} className="text-center space-y-2">
+                <div className="relative">
+                  <div className="w-full aspect-square rounded-2xl bg-white border border-[#EAE4DF] shadow-soft flex items-center justify-center">
+                    <span
+                      className="text-3xl sm:text-5xl font-bold text-[#1F1B1C] font-serif tabular-nums"
+                      style={{ fontFamily: invitation.heading_font || 'Cormorant Garamond' }}
+                    >
+                      {String(unit.value ?? 0).padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] sm:text-xs text-[#756B70] font-semibold uppercase tracking-wider">
+                  {unit.label}
+                </span>
+              </div>
+            ))}
           </div>
         )}
+
+        {/* Decorative line */}
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <div className="h-px w-12 bg-[#EAE4DF]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#E85B6A]/40" />
+          <div className="h-px w-12 bg-[#EAE4DF]" />
+        </div>
       </div>
     </div>
   );

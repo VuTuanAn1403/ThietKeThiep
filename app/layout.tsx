@@ -66,7 +66,7 @@ export default function RootLayout({
       <head>
         <JsonLd />
       </head>
-      <body className="antialiased font-sans bg-[#fdfbf7] text-[#2d3748] min-h-screen">
+      <body className="antialiased font-sans bg-[#FFFDFB] text-[#1F1B1C] min-h-screen selection:bg-[#E85B6A]/15 selection:text-[#E85B6A]">
         <AuthProvider>
           <GoogleAnalytics />
           {children}

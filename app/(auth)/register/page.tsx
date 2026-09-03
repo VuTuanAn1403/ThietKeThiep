@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Lock, ArrowRight, AlertCircle, Heart } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, AlertCircle, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
 
 export default function RegisterPage() {
@@ -48,121 +48,168 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4">
-      <div className="bg-white rounded-[32px] border border-[#e8dfd8] shadow-xl max-w-md w-full p-8 space-y-6">
-        <div className="text-left space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 text-xl font-serif font-bold text-[#e85d75]">
-            <Heart className="w-5 h-5 fill-[#e85d75]" /> NHÀ CÓ TIỆC
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 pt-2">
-            Tạo tài khoản <span className="text-2xl">👋</span>
-          </h1>
-          <p className="text-xs text-gray-500">
-            Tạo thiệp cưới online miễn phí, đẹp mắt trong vài phút.
-          </p>
+    <div className="min-h-screen bg-[#FFFDFB] flex">
+      {/* Left — Branding Panel */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#1F1B1C] via-[#2F292B] to-[#1F1B1C] items-center justify-center p-12">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-[#E85B6A] rounded-full blur-[120px]" />
+          <div className="absolute bottom-20 right-20 w-48 h-48 bg-[#C5A880] rounded-full blur-[100px]" />
         </div>
 
-        {error && (
-          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-rose-700 text-xs font-medium">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div>
-            <label className="block font-semibold text-gray-800 mb-1">Họ và tên</label>
-            <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-3 text-gray-400" />
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Ví dụ: Nguyễn Văn A"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#fdfbf7] border border-[#e8dfd8] rounded-xl text-xs focus:ring-2 focus:ring-[#e85d75] focus:outline-none"
-              />
+        <div className="relative z-10 max-w-md space-y-8 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#E85B6A] to-[#F27B88] text-white flex items-center justify-center shadow-lg">
+              <Heart className="w-6 h-6 fill-white" />
             </div>
           </div>
-
-          <div>
-            <label className="block font-semibold text-gray-800 mb-1">Email</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-3 text-gray-400" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#fdfbf7] border border-[#e8dfd8] rounded-xl text-xs focus:ring-2 focus:ring-[#e85d75] focus:outline-none"
-              />
+          <h2 className="text-4xl font-serif font-bold text-white leading-tight">
+            Khởi tạo thiệp cưới<br />
+            <span className="text-[#E85B6A]">hoàn toàn miễn phí</span>
+          </h2>
+          <p className="text-sm text-white/60 leading-relaxed">
+            Tham gia cùng hàng nghìn cặp đôi tạo nên những tấm thiệp mời trực tuyến lãng mạn, hiện đại và sang trọng.
+          </p>
+          <div className="space-y-3 text-left bg-white/5 border border-white/10 rounded-2xl p-5 text-xs text-white/70">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-[#8FA79B] flex-shrink-0" />
+              <span>Miễn phí 1 thiệp cưới với đầy đủ tính năng cơ bản</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-[#8FA79B] flex-shrink-0" />
+              <span>Xác nhận tham dự (RSVP) & Sổ lưu bút tự động</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-[#8FA79B] flex-shrink-0" />
+              <span>Tạo mã VietQR nhận quà mừng an toàn trực tiếp</span>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div>
-            <label className="block font-semibold text-gray-800 mb-1">Mật khẩu (tối thiểu 6 ký tự)</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-3 text-gray-400" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#fdfbf7] border border-[#e8dfd8] rounded-xl text-xs focus:ring-2 focus:ring-[#e85d75] focus:outline-none"
-              />
+      {/* Right — Register Form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
+        <div className="w-full max-w-md space-y-6">
+          {/* Mobile brand */}
+          <div className="lg:hidden mb-2">
+            <Link href="/" className="inline-flex items-center gap-2 text-xl font-serif font-bold text-[#E85B6A]">
+              <Heart className="w-5 h-5 fill-[#E85B6A]" /> NHÀ CÓ TIỆC
+            </Link>
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF7F5] text-[#E85B6A] text-[11px] font-bold border border-[#EAE4DF]">
+              <Sparkles className="w-3 h-3" /> Đăng ký tài khoản mới
             </div>
+            <h1 className="text-3xl font-bold text-[#1F1B1C]">
+              Tạo tài khoản <span className="text-2xl">✨</span>
+            </h1>
+            <p className="text-sm text-[#756B70]">
+              Tạo thiệp cưới online miễn phí, đẹp mắt trong vài phút.
+            </p>
           </div>
 
-          <div>
-            <label className="block font-semibold text-gray-800 mb-1">Xác nhận mật khẩu</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-3 text-gray-400" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#fdfbf7] border border-[#e8dfd8] rounded-xl text-xs focus:ring-2 focus:ring-[#e85d75] focus:outline-none"
-              />
+          {error && (
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-rose-700 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
             </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-[#1F1B1C] mb-1.5">Họ và tên</label>
+              <div className="relative">
+                <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756B70]" />
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Ví dụ: Nguyễn Văn A"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:ring-2 focus:ring-[#E85B6A] focus:border-[#E85B6A] focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#1F1B1C] mb-1.5">Email</label>
+              <div className="relative">
+                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756B70]" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:ring-2 focus:ring-[#E85B6A] focus:border-[#E85B6A] focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#1F1B1C] mb-1.5">Mật khẩu (tối thiểu 6 ký tự)</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756B70]" />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:ring-2 focus:ring-[#E85B6A] focus:border-[#E85B6A] focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#1F1B1C] mb-1.5">Xác nhận mật khẩu</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756B70]" />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:ring-2 focus:ring-[#E85B6A] focus:border-[#E85B6A] focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
+                className="rounded border-[#EAE4DF] text-[#E85B6A] focus:ring-[#E85B6A] w-4 h-4"
+              />
+              <label htmlFor="terms" className="text-xs text-[#756B70]">
+                Tôi đồng ý với{' '}
+                <Link href="/privacy" className="text-[#E85B6A] hover:underline font-semibold">
+                  Điều khoản & Chính sách bảo mật
+                </Link>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl btn-3d-primary text-white font-semibold text-sm flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:transform-none"
+            >
+              {loading ? 'Đang tạo tài khoản...' : 'Đăng ký tài khoản'}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          <div className="text-center text-sm text-[#756B70] pt-2 border-t border-[#EAE4DF]">
+            Đã có tài khoản?{' '}
+            <Link href="/login" className="font-bold text-[#E85B6A] hover:underline">
+              Đăng nhập ngay
+            </Link>
           </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={agreeTerms}
-              onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="rounded border-[#e8dfd8] text-[#e85d75] focus:ring-[#e85d75]"
-            />
-            <label htmlFor="terms" className="text-[11px] text-gray-600">
-              Tôi đồng ý với{' '}
-              <Link href="/privacy" className="text-[#e85d75] hover:underline font-semibold">
-                Điều khoản & Chính sách bảo mật
-              </Link>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-2xl bg-[#e85d75] text-white font-semibold text-xs shadow-md hover:bg-[#d64c64] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            {loading ? 'Đang tạo tài khoản...' : 'Đăng ký tài khoản'}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="text-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-          Đã có tài khoản?{' '}
-          <Link href="/login" className="font-bold text-[#e85d75] hover:underline">
-            Đăng nhập ngay
-          </Link>
         </div>
       </div>
     </div>

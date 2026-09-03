@@ -51,68 +51,70 @@ export default function RSVPSection({ invitation, guest }: Props) {
   };
 
   return (
-    <div className="py-16 px-6 bg-white border-b border-[#E8DFD8]">
+    <div className="py-20 px-6">
       <div className="max-w-xl mx-auto text-center space-y-8">
-        <div>
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#B76E79]">
-            Xác Nhận Tham Dự
+        <div className="space-y-2.5">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#E85B6A]">
+            XÁC NHẬN THAM DỰ
           </span>
           <h2
-            className="text-3xl sm:text-4xl font-bold text-[#292624] mt-2"
+            className="text-3xl sm:text-4xl font-serif font-bold text-[#1F1B1C]"
             style={{ fontFamily: invitation.heading_font || 'Cormorant Garamond' }}
           >
             Phản Hồi Sự Có Mặt Của Bạn
           </h2>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-xs sm:text-sm text-[#756B70]">
             Sự hiện diện của bạn là niềm vinh hạnh lớn đối với chúng tôi!
           </p>
         </div>
 
         {submitted ? (
-          <div className="bg-[#FFFDF9] p-8 rounded-3xl border border-[#8FA79B]/40 text-center space-y-4 shadow-sm">
+          <div className="depth-card bg-white p-8 rounded-3xl border border-[#8FA79B]/40 text-center space-y-4 shadow-card">
             <CheckCircle2 className="w-12 h-12 text-[#8FA79B] mx-auto" />
-            <h3 className="text-2xl font-serif font-bold text-[#292624]">Cảm Ơn Bạn Đã Phản Hồi!</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-2xl font-serif font-bold text-[#1F1B1C]">Cảm Ơn Bạn Đã Phản Hồi!</h3>
+            <p className="text-xs sm:text-sm text-[#756B70] leading-relaxed">
               Thông tin xác nhận tham dự của bạn đã được ghi nhận. Chúng tôi rất mong được đón tiếp bạn!
             </p>
             <button
               onClick={() => setSubmitted(false)}
-              className="text-xs font-semibold text-[#B76E79] hover:underline"
+              className="text-xs font-semibold text-[#E85B6A] hover:underline cursor-pointer"
             >
               Chỉnh sửa lại phản hồi
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-[#FFFDF9] p-6 sm:p-8 rounded-3xl border border-[#E8DFD8] text-left space-y-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="depth-card bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE4DF] text-left space-y-6 shadow-card">
             {error && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-rose-700 text-sm">
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-700 text-xs font-medium">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {guest && (
-              <div className="p-4 rounded-2xl bg-white border border-[#E8DFD8] flex items-center gap-3">
-                <UserCheck className="w-5 h-5 text-[#B76E79]" />
+              <div className="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE4DF] flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#E85B6A] flex items-center justify-center">
+                  <UserCheck className="w-4 h-4" />
+                </div>
                 <div>
-                  <div className="text-xs text-gray-500 font-medium">Khách mời:</div>
-                  <div className="text-sm font-bold text-[#292624]">{guest.name}</div>
+                  <div className="text-[11px] text-[#756B70] font-medium">Khách mời:</div>
+                  <div className="text-sm font-bold text-[#1F1B1C]">{guest.name}</div>
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-[#292624] mb-3">
+              <label className="block text-xs sm:text-sm font-semibold text-[#1F1B1C] mb-3">
                 Bạn có thể đến dự cùng chúng tôi không?
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2.5">
                 <button
                   type="button"
                   onClick={() => { setAttendance('ATTENDING'); if (guestCount === 0) setGuestCount(1); }}
-                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all ${
+                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all cursor-pointer ${
                     attendance === 'ATTENDING'
-                      ? 'bg-[#B76E79] text-white border-[#B76E79] shadow-sm'
-                      : 'bg-white text-gray-700 border-[#E8DFD8] hover:bg-[#F4EFEB]'
+                      ? 'btn-3d-primary text-white border-[#E85B6A]'
+                      : 'bg-white text-[#756B70] border-[#EAE4DF] hover:bg-[#FAF7F5]'
                   }`}
                 >
                   Sẽ Tham Dự ❤️
@@ -120,10 +122,10 @@ export default function RSVPSection({ invitation, guest }: Props) {
                 <button
                   type="button"
                   onClick={() => { setAttendance('MAYBE'); if (guestCount === 0) setGuestCount(1); }}
-                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all ${
+                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all cursor-pointer ${
                     attendance === 'MAYBE'
                       ? 'bg-[#8FA79B] text-white border-[#8FA79B] shadow-sm'
-                      : 'bg-white text-gray-700 border-[#E8DFD8] hover:bg-[#F4EFEB]'
+                      : 'bg-white text-[#756B70] border-[#EAE4DF] hover:bg-[#FAF7F5]'
                   }`}
                 >
                   Có Thể
@@ -131,20 +133,20 @@ export default function RSVPSection({ invitation, guest }: Props) {
                 <button
                   type="button"
                   onClick={() => { setAttendance('NOT_ATTENDING'); setGuestCount(0); }}
-                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all ${
+                  className={`py-3 px-2 rounded-2xl border text-xs font-semibold text-center transition-all cursor-pointer ${
                     attendance === 'NOT_ATTENDING'
-                      ? 'bg-gray-700 text-white border-gray-700 shadow-sm'
-                      : 'bg-white text-gray-700 border-[#E8DFD8] hover:bg-[#F4EFEB]'
+                      ? 'bg-[#1F1B1C] text-white border-[#1F1B1C] shadow-sm'
+                      : 'bg-white text-[#756B70] border-[#EAE4DF] hover:bg-[#FAF7F5]'
                   }`}
                 >
-                  Rất Tiếc Rắn Rỏi
+                  Rất Tiếc
                 </button>
               </div>
             </div>
 
             {attendance !== 'NOT_ATTENDING' && (
               <div>
-                <label className="block text-sm font-semibold text-[#292624] mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-[#1F1B1C] mb-1.5">
                   Số người tham dự (Tối đa {maxAllowed} người)
                 </label>
                 <input
@@ -153,13 +155,13 @@ export default function RSVPSection({ invitation, guest }: Props) {
                   max={maxAllowed}
                   value={guestCount}
                   onChange={(e) => setGuestCount(Math.min(maxAllowed, Math.max(1, parseInt(e.target.value) || 1)))}
-                  className="w-full px-4 py-2.5 bg-white border border-[#E8DFD8] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B76E79]"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E85B6A]"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-[#292624] mb-2">
+              <label className="block text-xs sm:text-sm font-semibold text-[#1F1B1C] mb-1.5">
                 Lời nhắn gửi (Nếu có)
               </label>
               <textarea
@@ -167,14 +169,14 @@ export default function RSVPSection({ invitation, guest }: Props) {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Chúc mừng hai bạn! Rất mong chờ đến ngày tiệc..."
-                className="w-full px-4 py-2.5 bg-white border border-[#E8DFD8] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B76E79]"
+                className="w-full px-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E85B6A]"
               ></textarea>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#B76E79] text-white text-sm font-semibold hover:bg-[#a25b66] transition-colors shadow-md disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl btn-3d-primary text-white text-sm font-semibold transition-all disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Đang gửi...' : 'Gửi Phản Hồi RSVP'}
               <Send className="w-4 h-4" />

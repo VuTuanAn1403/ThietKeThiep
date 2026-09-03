@@ -59,26 +59,31 @@ export default function EditorPanel({
   };
 
   return (
-    <div className="bg-white border-r border-[#E8DFD8] h-full flex flex-col overflow-hidden">
+    <div className="bg-white border-r border-[#EAE4DF] h-full flex flex-col overflow-hidden">
       {/* Top Header */}
-      <div className="p-4 border-b border-[#E8DFD8] flex items-center justify-between bg-[#FFFDF9]">
+      <div className="p-4 border-b border-[#EAE4DF] flex items-center justify-between bg-[#FFFDFB]">
         <div>
-          <h2 className="font-serif font-bold text-lg text-[#292624]">Trình Chỉnh Sửa Thiệp</h2>
-          <span className="text-xs text-gray-500 font-mono">{invitation.slug}</span>
+          <h2 className="font-serif font-bold text-lg text-[#1F1B1C]">Trình Thiết Kế Thiệp</h2>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[11px] text-[#756B70] font-mono">/i/{invitation.slug}</span>
+            <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+              ● Tự động đồng bộ
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onSave}
             disabled={saving}
-            className="px-3.5 py-1.5 rounded-xl border border-[#E8DFD8] bg-white text-xs font-semibold text-[#292624] hover:bg-[#F4EFEB] transition-colors flex items-center gap-1.5"
+            className="px-4 py-1.5 rounded-full btn-luxury-secondary text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
           >
-            <Save className="w-3.5 h-3.5" />
-            Lưu
+            <Save className="w-3.5 h-3.5 text-[#E85B6A]" />
+            {saving ? 'Đang lưu...' : 'Lưu'}
           </button>
           <button
             onClick={onPublish}
             disabled={saving}
-            className="px-3.5 py-1.5 rounded-xl bg-[#B76E79] text-white text-xs font-semibold hover:bg-[#a25b66] transition-colors flex items-center gap-1.5 shadow-sm"
+            className="px-4 py-1.5 rounded-full btn-luxury-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm disabled:opacity-50"
           >
             <Globe className="w-3.5 h-3.5" />
             {invitation.status === 'PUBLISHED' ? 'Cập Nhật' : 'Xuất Bản'}
@@ -87,43 +92,43 @@ export default function EditorPanel({
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex border-b border-[#E8DFD8] bg-[#F4EFEB]/50 p-1 text-xs font-semibold overflow-x-auto">
+      <div className="flex border-b border-[#EAE4DF] bg-[#FAF7F5] p-1.5 text-xs font-semibold overflow-x-auto gap-1">
         <button
           onClick={() => setActiveTab('info')}
-          className={`flex-1 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-            activeTab === 'info' ? 'bg-white text-[#B76E79] shadow-sm font-bold' : 'text-gray-600 hover:text-[#292624]'
+          className={`flex-1 py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'info' ? 'bg-white text-[#E85B6A] shadow-soft font-bold border border-[#EAE4DF]' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
           <FileText className="w-3.5 h-3.5" /> Thông Tin
         </button>
         <button
           onClick={() => setActiveTab('theme')}
-          className={`flex-1 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-            activeTab === 'theme' ? 'bg-white text-[#B76E79] shadow-sm font-bold' : 'text-gray-600 hover:text-[#292624]'
+          className={`flex-1 py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'theme' ? 'bg-white text-[#E85B6A] shadow-soft font-bold border border-[#EAE4DF]' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
           <Palette className="w-3.5 h-3.5" /> Theme
         </button>
         <button
           onClick={() => setActiveTab('sections')}
-          className={`flex-1 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-            activeTab === 'sections' ? 'bg-white text-[#B76E79] shadow-sm font-bold' : 'text-gray-600 hover:text-[#292624]'
+          className={`flex-1 py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'sections' ? 'bg-white text-[#E85B6A] shadow-soft font-bold border border-[#EAE4DF]' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
           <Layers className="w-3.5 h-3.5" /> Sections
         </button>
         <button
           onClick={() => setActiveTab('gallery')}
-          className={`flex-1 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-            activeTab === 'gallery' ? 'bg-white text-[#B76E79] shadow-sm font-bold' : 'text-gray-600 hover:text-[#292624]'
+          className={`flex-1 py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'gallery' ? 'bg-white text-[#E85B6A] shadow-soft font-bold border border-[#EAE4DF]' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5" /> Album
         </button>
         <button
           onClick={() => setActiveTab('music')}
-          className={`flex-1 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
-            activeTab === 'music' ? 'bg-white text-[#B76E79] shadow-sm font-bold' : 'text-gray-600 hover:text-[#292624]'
+          className={`flex-1 py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'music' ? 'bg-white text-[#E85B6A] shadow-soft font-bold border border-[#EAE4DF]' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
           <Music className="w-3.5 h-3.5" /> Nhạc

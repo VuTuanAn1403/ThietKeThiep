@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, Users, Layers, FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { Users, Layers, FileText, CheckCircle, ArrowRight, CreditCard, MessageSquare, UserCheck } from 'lucide-react';
 import { AdminService, SystemStats } from '@/services/admin.service';
 
 export default function AdminOverviewPage() {
@@ -19,139 +19,149 @@ export default function AdminOverviewPage() {
     load();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#FFFDF9]">
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-[#E8DFD8] sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-serif font-bold text-xl text-purple-900">
-            <Shield className="w-6 h-6 text-purple-700" />
-            <span>NHÀ CÓ TIỆC — Quản Trị Hệ Thống</span>
-          </div>
-          <Link href="/dashboard" className="text-xs font-semibold text-gray-600 hover:text-[#B76E79]">
-            Về Dashboard Người Dùng
-          </Link>
-        </div>
-      </header>
+  const statCards = stats
+    ? [
+        { label: 'Người Dùng', value: stats.totalUsers, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Thiệp Mời', value: stats.totalInvitations, icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Đã Xuất Bản', value: stats.publishedInvitations, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Mẫu Thiệp', value: stats.totalTemplates, icon: Layers, color: 'text-amber-600', bg: 'bg-amber-50' },
+      ]
+    : [];
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <div className="flex items-center justify-between bg-purple-900 text-white p-8 rounded-3xl shadow-md">
+  const quickLinks = [
+    {
+      label: 'Quản Lý Người Dùng',
+      desc: 'Xem danh sách, thay đổi quyền hạn và quản lý tài khoản.',
+      href: '/admin/users',
+      icon: Users,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+    },
+    {
+      label: 'Đơn Hàng & Thanh Toán',
+      desc: 'Xem xét, phê duyệt hoặc từ chối yêu cầu thanh toán.',
+      href: '/admin/payments',
+      icon: CreditCard,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
+    {
+      label: 'Quản Lý Mẫu Thiệp',
+      desc: 'Thêm mới, kích hoạt hoặc vô hiệu hóa template.',
+      href: '/admin/templates',
+      icon: Layers,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'RSVP Hệ Thống',
+      desc: 'Xem tổng hợp xác nhận tham dự trên toàn nền tảng.',
+      href: '/admin/rsvp',
+      icon: UserCheck,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+    },
+    {
+      label: 'Kiểm Duyệt Lời Chúc',
+      desc: 'Kiểm duyệt lời chúc mới từ khách mời.',
+      href: '/admin/wishes',
+      icon: MessageSquare,
+      color: 'text-rose-600',
+      bg: 'bg-rose-50',
+    },
+    {
+      label: 'Quản Lý Danh Mục',
+      desc: 'Tạo mới và chỉnh sửa các loại tiệc.',
+      href: '/admin/categories',
+      icon: Layers,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+    },
+  ];
+
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Welcome Banner */}
+      <div className="admin-card p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-serif font-bold">Admin Control Center</h1>
-            <p className="text-xs text-purple-200 mt-1">
+            <h1 className="text-xl sm:text-2xl font-semibold text-admin-text">
+              Chào mừng trở lại 👋
+            </h1>
+            <p className="text-sm text-admin-muted mt-1">
               Quản lý người dùng, mẫu thiệp, danh mục sự kiện và theo dõi toàn bộ chỉ số nền tảng.
             </p>
           </div>
-        </div>
-
-        {/* Stats Grid */}
-        {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <Users className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-[#292624] font-mono">{stats.totalUsers}</div>
-                <div className="text-xs text-gray-500 font-medium">Người Dùng</div>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-[#292624] font-mono">{stats.totalInvitations}</div>
-                <div className="text-xs text-gray-500 font-medium">Thiệp Mời</div>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-[#292624] font-mono">{stats.publishedInvitations}</div>
-                <div className="text-xs text-gray-500 font-medium">Đã Xuất Bản</div>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
-                <Layers className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-[#292624] font-mono">{stats.totalTemplates}</div>
-                <div className="text-xs text-gray-500 font-medium">Mẫu Thiệp Active</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Management Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
-            href="/admin/users"
-            className="p-6 bg-white rounded-3xl border border-[#E8DFD8] shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
+            href="/dashboard"
+            className="admin-btn-secondary px-4 py-2 text-xs flex items-center gap-1.5"
           >
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center mb-4">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-serif font-bold text-[#292624] group-hover:text-purple-700 transition-colors">
-                Quản Lý Người Dùng
-              </h3>
-              <p className="text-xs text-gray-500 mt-2">
-                Xem danh sách người dùng, thay đổi quyền hạn và khóa/mở khóa tài khoản.
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-purple-700">
-              Truy cập quản lý <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-
-          <Link
-            href="/admin/categories"
-            className="p-6 bg-white rounded-3xl border border-[#E8DFD8] shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center mb-4">
-                <Layers className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-serif font-bold text-[#292624] group-hover:text-blue-700 transition-colors">
-                Quản Lý Danh Mục
-              </h3>
-              <p className="text-xs text-gray-500 mt-2">
-                Tạo mới, chỉnh sửa và quản lý các loại tiệc (Đám cưới, Sinh nhật, Tân gia...).
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-blue-700">
-              Truy cập quản lý <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-
-          <Link
-            href="/admin/templates"
-            className="p-6 bg-white rounded-3xl border border-[#E8DFD8] shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-4">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-serif font-bold text-[#292624] group-hover:text-emerald-700 transition-colors">
-                Quản Lý Mẫu Thiệp
-              </h3>
-              <p className="text-xs text-gray-500 mt-2">
-                Thêm mới mẫu thiết kế, kích hoạt/vô hiệu hóa template trên thư viện công khai.
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-emerald-700">
-              Truy cập quản lý <ArrowRight className="w-4 h-4" />
-            </div>
+            Về User Dashboard <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-      </main>
+      </div>
+
+      {/* Stats Grid */}
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="admin-card p-5 space-y-3">
+              <div className="admin-skeleton h-8 w-8 rounded-lg" />
+              <div className="admin-skeleton h-8 w-16" />
+              <div className="admin-skeleton h-3 w-20" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {statCards.map((stat, idx) => {
+            const Icon = stat.icon;
+            return (
+              <div key={idx} className="admin-card p-5 flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center flex-shrink-0`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-admin-text tabular-nums">{stat.value}</div>
+                  <div className="text-xs text-admin-muted font-medium mt-0.5">{stat.label}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Quick Links Grid */}
+      <div>
+        <h2 className="text-sm font-semibold text-admin-text mb-4">Truy cập nhanh</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="admin-card p-5 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className={`w-10 h-10 rounded-lg ${link.bg} ${link.color} flex items-center justify-center mb-3`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-admin-text group-hover:text-admin-accent transition-colors">
+                    {link.label}
+                  </h3>
+                  <p className="text-xs text-admin-muted mt-1 leading-relaxed">
+                    {link.desc}
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-medium text-admin-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                  Truy cập <ArrowRight className="w-3 h-3" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

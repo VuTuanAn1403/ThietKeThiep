@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Search, Shield, Lock, Unlock } from 'lucide-react';
+import { Search, Shield, Lock, Unlock, Users, UserX } from 'lucide-react';
 import { AdminService } from '@/services/admin.service';
 import { UserProfile } from '@/types/database.types';
 
@@ -28,102 +27,125 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF9] py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Link href="/admin" className="text-gray-600 hover:text-purple-700">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-serif font-bold text-[#292624]">Quản Lý Người Dùng</h1>
-            <p className="text-xs text-gray-500">Danh sách toàn bộ thành viên trên hệ thống</p>
-          </div>
-        </div>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-xl font-semibold text-admin-text">Quản Lý Người Dùng</h1>
+        <p className="text-sm text-admin-muted mt-0.5">Danh sách toàn bộ thành viên trên hệ thống</p>
+      </div>
 
-        {/* Search */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center justify-between">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm theo tên hoặc email..."
-              className="w-full pl-9 pr-3 py-2 bg-[#FFFDF9] border border-[#E8DFD8] rounded-xl text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none"
-            />
-          </div>
+      {/* Search & Filters */}
+      <div className="admin-card p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm theo tên hoặc email..."
+            className="admin-input pl-9"
+          />
         </div>
+        <div className="text-xs text-admin-muted">
+          {!loading && <span>{users.length} người dùng</span>}
+        </div>
+      </div>
 
-        {/* Users Table */}
-        <div className="bg-white rounded-2xl border border-[#E8DFD8] overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#FFFDF9] border-b border-[#E8DFD8] text-gray-500 font-semibold uppercase">
+      {/* Users Table */}
+      <div className="admin-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Người Dùng</th>
+                <th>Email</th>
+                <th>Quyền Hạn</th>
+                <th>Trạng Thái</th>
+                <th>Ngày Tham Gia</th>
+                <th className="text-right">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td><div className="flex items-center gap-3"><div className="admin-skeleton w-8 h-8 rounded-full" /><div className="admin-skeleton h-4 w-24" /></div></td>
+                    <td><div className="admin-skeleton h-4 w-32" /></td>
+                    <td><div className="admin-skeleton h-5 w-16 rounded-full" /></td>
+                    <td><div className="admin-skeleton h-5 w-16 rounded-full" /></td>
+                    <td><div className="admin-skeleton h-4 w-20" /></td>
+                    <td><div className="admin-skeleton h-7 w-20 ml-auto rounded-lg" /></td>
+                  </tr>
+                ))
+              ) : users.length === 0 ? (
                 <tr>
-                  <th className="py-3.5 px-4">Người Dùng</th>
-                  <th className="py-3.5 px-4">Email</th>
-                  <th className="py-3.5 px-4">Quyền Hạn</th>
-                  <th className="py-3.5 px-4">Trạng Thái</th>
-                  <th className="py-3.5 px-4">Ngày Tham Gia</th>
-                  <th className="py-3.5 px-4 text-right">Hành Động</th>
+                  <td colSpan={6}>
+                    <div className="admin-empty py-12">
+                      <div className="admin-empty-icon">
+                        <UserX className="w-6 h-6" />
+                      </div>
+                      <h3 className="font-semibold text-admin-text text-sm">Chưa có người dùng</h3>
+                      <p className="text-xs text-admin-muted mt-1">Người dùng mới sẽ xuất hiện tại đây.</p>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E8DFD8]">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400">
-                      Đang tải danh sách người dùng...
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-admin-hover text-admin-muted font-semibold text-xs flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {u.avatar_url ? (
+                            <img src={u.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            u.full_name?.charAt(0) || 'U'
+                          )}
+                        </div>
+                        <span className="font-medium text-admin-text">{u.full_name || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="text-admin-muted font-mono text-xs">{u.email}</td>
+                    <td>
+                      <span
+                        className={`admin-badge ${
+                          u.role === 'ADMIN' ? 'bg-indigo-50 text-indigo-700' : 'admin-badge-inactive'
+                        }`}
+                      >
+                        {u.role === 'ADMIN' && <Shield className="w-3 h-3" />}
+                        {u.role}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`admin-badge ${
+                          u.status === 'ACTIVE' ? 'admin-badge-active' : 'admin-badge-blocked'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                        {u.status === 'ACTIVE' ? 'Active' : 'Blocked'}
+                      </span>
+                    </td>
+                    <td className="text-admin-muted text-xs">
+                      {new Date(u.created_at).toLocaleDateString('vi-VN')}
+                    </td>
+                    <td className="text-right">
+                      <button
+                        onClick={() => handleToggleStatus(u.id)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          u.status === 'ACTIVE'
+                            ? 'admin-btn-danger'
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                      >
+                        {u.status === 'ACTIVE' ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                        {u.status === 'ACTIVE' ? 'Khóa' : 'Mở Khóa'}
+                      </button>
                     </td>
                   </tr>
-                ) : (
-                  users.map((u) => (
-                    <tr key={u.id} className="hover:bg-[#FFFDF9]/60 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-[#292624] flex items-center gap-3">
-                        <img src={u.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
-                        <span>{u.full_name || '—'}</span>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-gray-600">{u.email}</td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                            u.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                            u.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {u.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-gray-400 text-[11px]">
-                        {new Date(u.created_at).toLocaleDateString('vi-VN')}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => handleToggleStatus(u.id)}
-                          className={`px-3 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 border ml-auto transition-colors ${
-                            u.status === 'ACTIVE'
-                              ? 'bg-rose-50 text-rose-700 border-rose-200'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          }`}
-                        >
-                          {u.status === 'ACTIVE' ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                          {u.status === 'ACTIVE' ? 'Khóa TK' : 'Mở Khóa'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

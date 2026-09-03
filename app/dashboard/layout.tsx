@@ -71,23 +71,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen bg-[#fdfbf7] flex text-[#2d3748] font-sans">
+    <div className="min-h-screen bg-[#FFFDFB] flex text-[#1F1B1C] font-sans">
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white border-r border-[#e8dfd8] flex flex-col justify-between flex-shrink-0 min-h-screen hidden md:flex sticky top-0 h-screen">
+      <aside className="w-64 bg-white border-r border-[#EAE4DF] flex flex-col justify-between flex-shrink-0 min-h-screen hidden md:flex sticky top-0 h-screen shadow-soft z-20">
         <div className="p-6 space-y-6 overflow-y-auto">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl font-serif font-bold text-[#e85d75]">
-            <div className="w-8 h-8 rounded-full bg-[#e85d75] text-white flex items-center justify-center font-bold text-base shadow-sm">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#E85B6A] to-[#F27B88] text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition-transform">
               <Heart className="w-4 h-4 fill-white text-white" />
             </div>
-            <span className="tracking-tight text-gray-900 font-serif font-bold text-lg">NHÀ CÓ TIỆC</span>
+            <span className="tracking-tight text-[#1F1B1C] font-serif font-bold text-lg">NHÀ CÓ TIỆC</span>
           </Link>
 
           {/* Navigation Groups */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             {navItems.map((group) => (
-              <div key={group.group} className="space-y-1">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3 py-1">
+              <div key={group.group} className="space-y-1.5">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-[#756B70] px-3 py-1 font-serif">
                   {group.group}
                 </div>
                 {group.items.map((item) => {
@@ -97,13 +97,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
                         isActive
-                          ? 'bg-rose-50 text-[#e85d75] shadow-xs font-bold'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? 'bg-[#FAF7F5] text-[#E85B6A] border border-[#EAE4DF] shadow-xs font-bold'
+                          : 'text-[#756B70] hover:text-[#1F1B1C] hover:bg-[#FAF7F5]/60'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#e85d75]' : 'text-gray-500'}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#E85B6A]' : 'text-[#756B70]'}`} />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -112,12 +112,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             ))}
 
             {currentUser?.role === 'ADMIN' && (
-              <div className="pt-2 border-t border-gray-100">
+              <div className="pt-2 border-t border-[#FAF7F5]">
                 <Link
                   href="/admin"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-all"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-[#C5A880] bg-[#1F1B1C] hover:bg-[#2F292B] transition-all shadow-sm"
                 >
-                  <Shield className="w-4 h-4 text-purple-700" />
+                  <Shield className="w-4 h-4 text-[#C5A880]" />
                   <span>Admin Center</span>
                 </Link>
               </div>
@@ -126,12 +126,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* User Footer / Logout */}
-        <div className="p-4 border-t border-[#e8dfd8]">
+        <div className="p-4 border-t border-[#EAE4DF]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl btn-luxury-secondary text-xs font-semibold cursor-pointer"
           >
-            <LogOut className="w-4 h-4" /> Đăng xuất
+            <LogOut className="w-4 h-4 text-[#E85B6A]" /> <span>Đăng xuất</span>
           </button>
         </div>
       </aside>
@@ -139,11 +139,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Right Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-[#e8dfd8] h-16 px-6 flex items-center justify-between sticky top-0 z-30">
+        <header className="glass-header border-b border-[#EAE4DF] h-16 px-6 flex items-center justify-between sticky top-0 z-30 shadow-soft">
           <div className="flex items-center gap-2 md:hidden">
-            <Link href="/" className="flex items-center gap-1.5 font-serif font-bold text-[#e85d75]">
-              <Heart className="w-5 h-5 fill-[#e85d75]" />
-              <span className="text-gray-900 text-sm">NHÀ CÓ TIỆC</span>
+            <Link href="/" className="flex items-center gap-2 font-serif font-bold text-[#E85B6A]">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#E85B6A] to-[#F27B88] text-white flex items-center justify-center">
+                <Heart className="w-3.5 h-3.5 fill-white" />
+              </div>
+              <span className="text-[#1F1B1C] text-sm">NHÀ CÓ TIỆC</span>
             </Link>
           </div>
 

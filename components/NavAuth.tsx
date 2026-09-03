@@ -11,6 +11,7 @@ import {
   ChevronDown,
   LayoutTemplate,
   MessageSquarePlus,
+  Sparkles,
 } from 'lucide-react';
 
 export function NavAuth() {
@@ -20,25 +21,26 @@ export function NavAuth() {
   if (loading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="h-8 w-20 bg-gray-100 animate-pulse rounded-full" />
+        <div className="h-8 w-20 bg-gray-100/80 animate-pulse rounded-full" />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <Link
           href="/login"
-          className="px-4 py-2 rounded-full text-xs font-semibold text-gray-700 hover:text-[#e85d75] transition-colors"
+          className="px-4 py-2 rounded-full text-xs font-medium text-[#756B70] hover:text-[#E85B6A] hover:bg-black/5 transition-all"
         >
           Đăng nhập
         </Link>
         <Link
           href="/register"
-          className="px-5 py-2.5 rounded-full bg-[#e85d75] text-white text-xs font-semibold hover:bg-[#d64c64] transition-all shadow-md"
+          className="px-5 py-2.5 rounded-full btn-luxury-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm"
         >
-          Đăng ký
+          <span>Tạo thiệp ngay</span>
+          <Sparkles className="w-3.5 h-3.5" />
         </Link>
       </div>
     );
@@ -49,16 +51,16 @@ export function NavAuth() {
       {role === 'ADMIN' ? (
         <Link
           href="/admin"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1F2421] text-amber-300 border border-amber-500/30 text-xs font-bold shadow-sm hover:bg-[#2F3531] transition-all"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1F1B1C] text-[#C5A880] border border-[#C5A880]/30 text-xs font-semibold shadow-sm hover:bg-[#2F292B] transition-all"
         >
-          <Shield className="w-3.5 h-3.5 text-amber-400" />
-          Admin Center
+          <Shield className="w-3.5 h-3.5 text-[#C5A880]" />
+          <span>Admin Center</span>
         </Link>
       ) : null}
 
       <Link
         href="/dashboard"
-        className="px-4 py-2 rounded-full bg-[#e85d75] text-white text-xs font-semibold hover:bg-[#d64c64] transition-all shadow-md flex items-center gap-1.5"
+        className="px-4 py-2 rounded-full btn-luxury-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm"
       >
         <LayoutDashboard className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Vào</span> Dashboard
@@ -68,86 +70,88 @@ export function NavAuth() {
       <div className="relative">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="flex items-center gap-1.5 p-1 rounded-full border border-[#e8dfd8] bg-white hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 p-1 rounded-full border border-[#EAE4DF] bg-white/90 hover:bg-white hover:border-[#D98B93] transition-all shadow-sm cursor-pointer"
           aria-label="User menu"
         >
-          <div className="w-7 h-7 rounded-full bg-[#e85d75]/10 text-[#e85d75] font-bold flex items-center justify-center text-xs overflow-hidden">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85B6A]/15 to-[#C5A880]/20 text-[#E85B6A] font-bold flex items-center justify-center text-xs overflow-hidden border border-[#E85B6A]/20">
             {user.avatar_url ? (
               <img src={user.avatar_url} alt={user.full_name || 'User'} className="w-full h-full object-cover" />
             ) : (
               user.full_name?.charAt(0) || 'U'
             )}
           </div>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-500 pr-0.5" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#756B70] pr-0.5" />
         </button>
 
         {menuOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-[#e8dfd8] rounded-2xl shadow-xl py-2 z-50 text-xs text-left animate-in fade-in zoom-in-95 duration-100">
-            <div className="px-4 py-2 border-b border-gray-100">
-              <div className="font-bold text-gray-900 truncate">{user.full_name || 'Khách hàng'}</div>
-              <div className="text-[11px] text-gray-500 truncate">{user.email}</div>
-              <div className="mt-1">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-rose-50 text-[#e85d75]'}`}>
+          <div className="absolute right-0 mt-2 w-60 bg-white/95 backdrop-blur-xl border border-[#EAE4DF] rounded-2xl shadow-floating py-2.5 z-50 text-xs text-left animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-4 py-2.5 border-b border-[#FAF7F5]">
+              <div className="font-semibold text-[#1F1B1C] truncate text-sm">{user.full_name || 'Khách hàng'}</div>
+              <div className="text-[11px] text-[#756B70] truncate mt-0.5">{user.email}</div>
+              <div className="mt-2">
+                <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${role === 'ADMIN' ? 'bg-[#C5A880]/15 text-[#8C6D40] border border-[#C5A880]/30' : 'bg-[#FAF7F5] text-[#E85B6A] border border-[#EAE4DF]'}`}>
                   {role === 'ADMIN' ? 'QUẢN TRỊ VIÊN' : 'THÀNH VIÊN'}
                 </span>
               </div>
             </div>
 
-            {role === 'ADMIN' && (
+            <div className="py-1">
+              {role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F5] text-[#8C6D40] font-semibold transition-colors"
+                >
+                  <Shield className="w-3.5 h-3.5 text-[#C5A880]" />
+                  <span>Trang Quản Trị (Admin)</span>
+                </Link>
+              )}
+
               <Link
-                href="/admin"
+                href="/dashboard"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-amber-50 text-amber-900 font-semibold"
+                className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F5] text-[#1F1B1C] font-medium transition-colors"
               >
-                <Shield className="w-3.5 h-3.5 text-amber-600" />
-                <span>Trang Quản Trị (Admin)</span>
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#756B70]" />
+                <span>Trang tổng quan</span>
               </Link>
-            )}
 
-            <Link
-              href="/dashboard"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 text-gray-700 font-medium"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-gray-500" />
-              <span>Trang tổng quan</span>
-            </Link>
+              <Link
+                href="/templates"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F5] text-[#1F1B1C] font-medium transition-colors"
+              >
+                <LayoutTemplate className="w-3.5 h-3.5 text-[#756B70]" />
+                <span>Mẫu thiệp yêu thích</span>
+              </Link>
 
-            <Link
-              href="/templates"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 text-gray-700 font-medium"
-            >
-              <LayoutTemplate className="w-3.5 h-3.5 text-gray-500" />
-              <span>Mẫu thiệp yêu thích</span>
-            </Link>
+              <Link
+                href="/dashboard/account"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F5] text-[#1F1B1C] font-medium transition-colors"
+              >
+                <User className="w-3.5 h-3.5 text-[#756B70]" />
+                <span>Cài đặt tài khoản</span>
+              </Link>
 
-            <Link
-              href="/dashboard/account"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 text-gray-700 font-medium"
-            >
-              <User className="w-3.5 h-3.5 text-gray-500" />
-              <span>Cài đặt tài khoản</span>
-            </Link>
+              <Link
+                href="/dashboard/feedback"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F5] text-[#1F1B1C] font-medium transition-colors"
+              >
+                <MessageSquarePlus className="w-3.5 h-3.5 text-[#756B70]" />
+                <span>Chia sẻ góp ý</span>
+              </Link>
+            </div>
 
-            <Link
-              href="/dashboard/feedback"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 text-gray-700 font-medium"
-            >
-              <MessageSquarePlus className="w-3.5 h-3.5 text-gray-500" />
-              <span>Chia sẻ góp ý</span>
-            </Link>
-
-            <div className="border-t border-gray-100 my-1" />
+            <div className="border-t border-[#FAF7F5] my-1" />
 
             <button
               onClick={async () => {
                 setMenuOpen(false);
                 await logout();
               }}
-              className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-rose-50 text-rose-600 font-semibold transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-rose-50/80 text-rose-600 font-semibold transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Đăng xuất</span>

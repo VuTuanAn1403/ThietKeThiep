@@ -37,14 +37,14 @@ export function StickyMobileCTA({
 
   if (type === 'invitation') {
     return (
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e8dfd8] p-3 px-4 shadow-xl transition-all duration-300">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-t border-[#EAE4DF] p-3 px-4 shadow-floating transition-all duration-300">
         <div className="max-w-md mx-auto flex items-center justify-between gap-2.5">
           <button
             onClick={onRsvpClick || (() => {
               const el = document.getElementById('rsvp-section') || document.querySelector('[data-section="rsvp"]');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             })}
-            className="flex-1 py-3 px-3 rounded-full bg-[#e85d75] text-white font-semibold text-xs shadow-md hover:bg-[#d64c64] active:scale-95 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-3 px-3 rounded-full btn-luxury-primary text-white font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5"
           >
             <Heart className="w-3.5 h-3.5 fill-white" />
             <span>Xác nhận tham dự (RSVP)</span>
@@ -55,9 +55,9 @@ export function StickyMobileCTA({
               const el = document.getElementById('wishes-section') || document.querySelector('[data-section="wishes"]');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             })}
-            className="py-3 px-3.5 rounded-full bg-white border border-[#e8dfd8] text-gray-700 font-semibold text-xs hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+            className="py-3 px-3.5 rounded-full btn-luxury-secondary text-[#1F1B1C] font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5"
           >
-            <Send className="w-3.5 h-3.5 text-[#e85d75]" />
+            <Send className="w-3.5 h-3.5 text-[#E85B6A]" />
             <span>Gửi lời chúc</span>
           </button>
         </div>
@@ -66,23 +66,23 @@ export function StickyMobileCTA({
   }
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e8dfd8] p-3 px-4 shadow-xl transition-all duration-300">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-t border-[#EAE4DF] p-3 px-4 shadow-floating transition-all duration-300">
       <div className="max-w-md mx-auto flex items-center justify-between gap-3">
         <div className="flex flex-col">
-          <span className="font-serif font-bold text-xs text-gray-900 leading-tight">NHÀ CÓ TIỆC</span>
-          <span className="text-[10px] text-gray-500">Tạo thiệp online miễn phí</span>
+          <span className="font-serif font-bold text-xs text-[#1F1B1C] leading-tight">NHÀ CÓ TIỆC</span>
+          <span className="text-[10px] text-[#756B70]">Thiệp cưới online cao cấp</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/templates"
-            className="py-2.5 px-3.5 rounded-full bg-white border border-[#e8dfd8] text-gray-700 font-semibold text-xs hover:bg-gray-50 active:scale-95 transition-all"
+            className="py-2.5 px-3.5 rounded-full btn-luxury-secondary text-[#1F1B1C] font-semibold text-xs active:scale-95 transition-all"
           >
             Xem mẫu
           </Link>
           <Link
             href="/dashboard/invitations/new"
-            className="py-2.5 px-4 rounded-full bg-[#e85d75] text-white font-semibold text-xs shadow-md hover:bg-[#d64c64] active:scale-95 transition-all flex items-center gap-1.5"
+            className="py-2.5 px-4 rounded-full btn-luxury-primary text-white font-semibold text-xs active:scale-95 transition-all flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
             Tạo thiệp

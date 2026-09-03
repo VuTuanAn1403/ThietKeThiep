@@ -16,10 +16,10 @@ export default function GallerySection({ invitation, galleryImages = [] }: Props
   if (galleryImages.length === 0) return null;
 
   return (
-    <div className="py-16 px-6 bg-[#FFFDF9] border-b border-[#E8DFD8]">
-      <div className="max-w-4xl mx-auto text-center space-y-8">
+    <div className="py-20 px-6">
+      <div className="max-w-4xl mx-auto text-center space-y-10">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#B76E79]">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#E85B6A]">
             <Camera className="w-4 h-4" />
             <span>Album Hình Ảnh</span>
           </div>
@@ -31,22 +31,24 @@ export default function GallerySection({ invitation, galleryImages = [] }: Props
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {galleryImages.map((img) => (
+        {/* Masonry-style grid */}
+        <div className="columns-2 sm:columns-3 gap-4 space-y-4">
+          {galleryImages.map((img, idx) => (
             <div
               key={img.id}
               onClick={() => setActiveImage(img)}
-              className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group bg-gray-100 border border-[#E8DFD8]"
+              className="relative rounded-2xl overflow-hidden cursor-pointer group border border-[#EAE4DF] break-inside-avoid transition-all duration-300 hover:-translate-y-1 hover:shadow-depth-md"
+              style={{ aspectRatio: idx % 3 === 0 ? '3/4' : idx % 3 === 1 ? '1/1' : '4/3' }}
             >
               <Image
                 src={img.image_url}
                 alt={img.caption || 'Kỷ niệm'}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               {img.caption && (
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3 text-white text-xs font-medium text-left">
-                  {img.caption}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <span className="text-white text-xs font-medium">{img.caption}</span>
                 </div>
               )}
             </div>
@@ -56,10 +58,11 @@ export default function GallerySection({ invitation, galleryImages = [] }: Props
 
       {/* Lightbox Modal */}
       {activeImage && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-sm">
           <button
             onClick={() => setActiveImage(null)}
-            className="absolute top-4 right-4 text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+            className="absolute top-4 right-4 text-white p-2.5 hover:bg-white/10 rounded-full transition-colors"
+            aria-label="Đóng ảnh"
           >
             <X className="w-6 h-6" />
           </button>
@@ -68,7 +71,7 @@ export default function GallerySection({ invitation, galleryImages = [] }: Props
               <Image src={activeImage.image_url} alt="Gallery image" fill className="object-contain" />
             </div>
             {activeImage.caption && (
-              <p className="mt-3 text-white text-sm font-medium">{activeImage.caption}</p>
+              <p className="mt-4 text-white text-sm font-medium font-serif italic">{activeImage.caption}</p>
             )}
           </div>
         </div>
