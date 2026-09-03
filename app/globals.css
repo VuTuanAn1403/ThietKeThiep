@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FFFDF9;
+  --foreground: #292624;
+  --primary: #B76E79;
+  --secondary: #8FA79B;
+  --accent: #D4AF37;
+  --muted: #F4EFEB;
+  --border: #E8DFD8;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEB;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4C5B9;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B76E79;
+}
