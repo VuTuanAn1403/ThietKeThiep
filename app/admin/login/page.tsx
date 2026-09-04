@@ -28,8 +28,8 @@ function AdminLoginForm() {
         setError(res.error);
       } else if (res.user) {
         if (res.user.role !== 'ADMIN') {
-          setError('Tài khoản này không có quyền truy cập hệ thống Quản Trị.');
           await logout();
+          router.push('/403');
         } else {
           router.push(redirectTo);
         }

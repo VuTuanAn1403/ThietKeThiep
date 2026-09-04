@@ -16,6 +16,7 @@ export interface OverviewMetrics {
 export interface InvitationAnalytics {
   totalViews: number;
   uniqueSessions: number;
+  attendanceRate: number;
   viewsByDay: Array<{ date: string; views: number }>;
   rsvpDistribution: Array<{ name: string; value: number }>;
   groupBreakdown: Array<{ group: string; total: number; attending: number }>;
@@ -75,10 +76,14 @@ export class AnalyticsService {
     };
   }
 
-  static async getInvitationAnalytics(invitationId: string): Promise<InvitationAnalytics> {
+  static async getInvitationAnalytics(
+    invitationId: string,
+    timeRange: '7d' | '30d' | '90d' | 'all' = '7d'
+  ): Promise<InvitationAnalytics> {
     const guests = await GuestService.getGuests(invitationId);
     let totalViews = 0;
     let uniqueSessions = 0;
+    let rawViews: Array<{ session_id: string | null; viewed_at: string }> = [];
 
     if (this.isSupabaseConfigured()) {
       try {
@@ -86,9 +91,11 @@ export class AnalyticsService {
         const { data: views } = await supabase
           .from('invitation_views')
           .select('session_id, viewed_at')
-          .eq('invitation_id', invitationId);
+          .eq('invitation_id', invitationId)
+          .order('viewed_at', { ascending: true });
 
         if (views) {
+          rawViews = views;
           totalViews = views.length;
           uniqueSessions = new Set(views.map((v) => v.session_id)).size;
         }
@@ -96,17 +103,32 @@ export class AnalyticsService {
         console.error('Supabase getInvitationAnalytics error:', err);
       }
     } else {
-      const views = mockStore.views.filter((v) => v.invitation_id === invitationId);
+      const views = mockStore.views
+        .filter((v) => v.invitation_id === invitationId)
+        .sort((a, b) => new Date(a.viewed_at).getTime() - new Date(b.viewed_at).getTime());
+      rawViews = views;
       totalViews = views.length;
       uniqueSessions = new Set(views.map((v) => v.session_id)).size;
     }
 
+    const daysCount = timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : timeRange === 'all' ? 14 : 7;
     const dayMap: Record<string, number> = {};
-    for (let i = 6; i >= 0; i--) {
+
+    for (let i = daysCount - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toLocaleDateString('vi-VN', { month: 'numeric', day: 'numeric' });
       dayMap[dateStr] = 0;
+    }
+
+    // Populate dayMap with ACTUAL views timestamps
+    for (const v of rawViews) {
+      if (!v.viewed_at) continue;
+      const vDate = new Date(v.viewed_at);
+      const dateStr = vDate.toLocaleDateString('vi-VN', { month: 'numeric', day: 'numeric' });
+      if (dayMap[dateStr] !== undefined) {
+        dayMap[dateStr]++;
+      }
     }
 
     const viewsByDay = Object.keys(dayMap).map((date) => ({
@@ -126,6 +148,9 @@ export class AnalyticsService {
       else if (r.attendance === 'NOT_ATTENDING') notAttending++;
       else if (r.attendance === 'MAYBE') maybe++;
     }
+
+    const totalGuests = guests.length;
+    const attendanceRate = totalGuests > 0 ? Number(((attending / totalGuests) * 100).toFixed(1)) : 0;
 
     const rsvpDistribution = [
       { name: 'Tham dự', value: attending },
@@ -155,6 +180,7 @@ export class AnalyticsService {
     return {
       totalViews,
       uniqueSessions,
+      attendanceRate,
       viewsByDay,
       rsvpDistribution,
       groupBreakdown,

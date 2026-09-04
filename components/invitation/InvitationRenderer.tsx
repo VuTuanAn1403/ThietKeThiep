@@ -15,6 +15,7 @@ import SignatureSection from './SignatureSection';
 import RSVPSection from './RSVPSection';
 import GuestbookSection from './GuestbookSection';
 import FooterSection from './FooterSection';
+import FloatingMusicPlayer from './FloatingMusicPlayer';
 import { StickyMobileCTA } from '@/components/StickyMobileCTA';
 
 interface Props {
@@ -81,14 +82,8 @@ export default function InvitationRenderer({
       {/* Sticky Mobile CTA for Invitation */}
       <StickyMobileCTA type="invitation" invitationTitle={invitation.title} />
 
-      {/* Dynamic Background Audio Player if music_url exists */}
-      {invitation.music_url && (
-        <div className="fixed bottom-4 right-4 z-40">
-          <audio controls autoPlay loop className="h-10 w-44 rounded-full opacity-80 hover:opacity-100 transition-opacity shadow-lg">
-            <source src={invitation.music_url} type="audio/mpeg" />
-          </audio>
-        </div>
-      )}
+      {/* Elegant Floating Background Audio Player if music_url exists */}
+      {invitation.music_url && <FloatingMusicPlayer musicUrl={invitation.music_url} />}
 
       {activeSectionTypes.map((type) => {
         const bg = sectionBg[type] || '';

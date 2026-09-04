@@ -30,6 +30,7 @@ export default function AnalyticsPage({ params }: PageProps) {
 
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [analytics, setAnalytics] = useState<InvitationAnalytics | null>(null);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('7d');
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -38,14 +39,14 @@ export default function AnalyticsPage({ params }: PageProps) {
       const inv = await InvitationService.getInvitationById(invitationId);
       setInvitation(inv);
 
-      const data = await AnalyticsService.getInvitationAnalytics(invitationId);
+      const data = await AnalyticsService.getInvitationAnalytics(invitationId, timeRange);
       setAnalytics(data);
       setLoading(false);
     }
     load();
-  }, [invitationId]);
+  }, [invitationId, timeRange]);
 
-  if (loading) {
+  if (loading && !analytics) {
     return (
       <div className="min-h-screen bg-[#FFFDF9] flex items-center justify-center text-gray-500 text-xs">
         Đang tải báo cáo phân tích...
@@ -57,19 +58,45 @@ export default function AnalyticsPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#FFFDF9] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="text-gray-600 hover:text-[#B76E79]">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-serif font-bold text-[#292624]">Báo Cáo Thống Kê & Phân Tích</h1>
-            <p className="text-xs text-gray-500">{invitation?.title}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="text-gray-600 hover:text-[#B76E79]">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-serif font-bold text-[#292624]">Báo Cáo Thống Kê & Phân Tích</h1>
+              <p className="text-xs text-gray-500">{invitation?.title}</p>
+            </div>
+          </div>
+
+          {/* Time Range Filter Pills */}
+          <div className="flex items-center bg-white p-1 rounded-2xl border border-[#E8DFD8] shadow-sm self-start sm:self-auto">
+            {(
+              [
+                { key: '7d', label: '7 ngày' },
+                { key: '30d', label: '30 ngày' },
+                { key: '90d', label: '90 ngày' },
+                { key: 'all', label: 'Tất cả' },
+              ] as const
+            ).map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTimeRange(t.key)}
+                className={`px-3 py-1 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                  timeRange === t.key
+                    ? 'btn-luxury-primary text-white shadow-sm'
+                    : 'text-gray-600 hover:text-[#1F1B1C]'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Top Cards */}
+        {/* Top 4 Metrics Cards */}
         {analytics && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
                 <Eye className="w-6 h-6" />
@@ -86,7 +113,7 @@ export default function AnalyticsPage({ params }: PageProps) {
               </div>
               <div>
                 <div className="text-2xl font-bold text-[#292624] font-mono">{analytics.uniqueSessions}</div>
-                <div className="text-xs text-gray-500 font-medium">Phiên Truy Cập Độc Lập</div>
+                <div className="text-xs text-gray-500 font-medium">Khách Độc Lập</div>
               </div>
             </div>
 
@@ -98,7 +125,17 @@ export default function AnalyticsPage({ params }: PageProps) {
                 <div className="text-2xl font-bold text-[#292624] font-mono">
                   {analytics.rsvpDistribution.find((r) => r.name === 'Tham dự')?.value || 0}
                 </div>
-                <div className="text-xs text-gray-500 font-medium">Khách Xác Nhận Tham Dự</div>
+                <div className="text-xs text-gray-500 font-medium">Xác Nhận Tham Dự</div>
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-[#E8DFD8] shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <span className="text-lg font-bold font-mono">%</span>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-[#292624] font-mono">{analytics.attendanceRate}%</div>
+                <div className="text-xs text-gray-500 font-medium">Tỷ Lệ Tham Dự</div>
               </div>
             </div>
           </div>

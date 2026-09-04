@@ -8,14 +8,23 @@
    1. CSS CUSTOM PROPERTIES — BRAND TOKENS
    ============================================================ */
 :root {
-  --background: #FFFDFB;
+  --background: #FFFDF9;
   --foreground: #1F1B1C;
-  --primary: #E85B6A;
+  --muted: #FAF7F5;
+  --muted-foreground: #756B70;
+  --card: #FFFFFF;
+  --card-foreground: #1F1B1C;
+  --border: #EAE4DF;
+  --primary: #B76E79;
+  --primary-foreground: #FFFFFF;
   --primary-soft: #F27B88;
   --secondary: #8FA79B;
+  --secondary-foreground: #FFFFFF;
   --accent: #C5A880;
-  --muted: #FAF7F5;
-  --border: #EAE4DF;
+  --accent-foreground: #FFFFFF;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
   --text-muted: #756B70;
 
   /* 3D / Depth system */
@@ -647,4 +656,55 @@ h1, h2, h3, h4, .font-serif {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ============================================================
+   16. AURORA GLASS — GLOW BORDER & ACCESSIBILITY
+   ============================================================ */
+@property --aurora-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aurora-border-spin {
+  0% {
+    --aurora-angle: 0deg;
+  }
+  100% {
+    --aurora-angle: 360deg;
+  }
+}
+
+.aurora-glow-border {
+  position: relative;
+}
+
+.aurora-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--aurora-angle, 0deg),
+    #7C3AED 0%,
+    #EC4899 25%,
+    #22D3EE 50%,
+    #6366F1 75%,
+    #7C3AED 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: aurora-border-spin 8s linear infinite;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-glow-border::before {
+    animation: none !important;
+  }
 }

@@ -44,6 +44,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ],
       type: 'article',
     },
+    robots: {
+      index: inv.status === 'PUBLISHED',
+      follow: inv.status === 'PUBLISHED',
+    },
     twitter: {
       card: 'summary_large_image',
       title,

@@ -12,7 +12,16 @@ export default function CountdownSection({ invitation }: Props) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
   useEffect(() => {
-    const targetDate = new Date(`${invitation.event_date}T${invitation.event_start_time || '00:00'}:00`).getTime();
+    if (!invitation.event_date) return;
+
+    const timeStr = invitation.event_start_time ? invitation.event_start_time.slice(0, 5) : '00:00';
+    const parsedDate = new Date(`${invitation.event_date}T${timeStr}:00`);
+    const targetDate = parsedDate.getTime();
+
+    if (isNaN(targetDate)) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
 
     const updateTimer = () => {
       const now = new Date().getTime();
@@ -55,11 +64,21 @@ export default function CountdownSection({ invitation }: Props) {
             className="text-3xl sm:text-5xl font-serif font-bold text-[#1F1B1C] leading-tight"
             style={{ fontFamily: invitation.heading_font || 'Cormorant Garamond' }}
           >
-            {isExpired ? 'Sự kiện đã bắt đầu ❤️' : 'Cùng Đếm Ngược Đến Ngày Vui'}
+            {isExpired ? 'Ngày Trọng Đại Đã Diễn Ra ❤️' : 'Cùng Đếm Ngược Đến Ngày Vui'}
           </h2>
         </div>
 
-        {timeLeft && !isExpired && (
+        {isExpired ? (
+          <div className="max-w-md mx-auto p-6 sm:p-8 rounded-3xl bg-white border border-[#EAE4DF] shadow-card space-y-3">
+            <span className="text-3xl">🥂</span>
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1F1B1C]">
+              Cảm Ơn Quý Khách Đã Đến Chung Vui!
+            </h3>
+            <p className="text-xs sm:text-sm text-[#756B70] leading-relaxed">
+              Sự hiện diện và lời chúc phúc tốt đẹp của quý khách là món quà quý giá và ý nghĩa nhất dành cho chúng tôi.
+            </p>
+          </div>
+        ) : timeLeft && (
           <div className="grid grid-cols-4 gap-4 sm:gap-8 max-w-md mx-auto">
             {units.map((unit, idx) => (
               <div key={idx} className="text-center space-y-2">

@@ -4,10 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, EyeOff, LayoutTemplate } from 'lucide-react';
 import { AdminService } from '@/services/admin.service';
 import { Template } from '@/types/database.types';
+import { Badge } from '@/components/ui/Badge';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 export default function AdminTemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [toggleTarget, setToggleTarget] = useState<Template | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -20,17 +24,28 @@ export default function AdminTemplatesPage() {
     loadData();
   }, []);
 
-  const handleToggle = async (id: string) => {
-    await AdminService.toggleTemplateStatus(id);
-    loadData();
+  const confirmToggle = async () => {
+    if (!toggleTarget) return;
+    setIsToggling(true);
+    try {
+      await AdminService.toggleTemplateStatus(toggleTarget.id);
+      await loadData();
+      setToggleTarget(null);
+    } finally {
+      setIsToggling(false);
+    }
   };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold text-admin-text">Quản Lý Mẫu Thiệp Mời</h1>
-        <p className="text-sm text-admin-muted mt-0.5">Quản lý kho giao diện mẫu hiển thị cho người dùng</p>
+        <h1 className="text-xl font-semibold text-admin-text flex items-center gap-2">
+          <LayoutTemplate className="w-5 h-5 text-admin-accent" /> Quản Lý Mẫu Thiệp Cưới
+        </h1>
+        <p className="text-xs sm:text-sm text-admin-muted mt-0.5">
+          Kiểm duyệt kho giao diện mẫu hiển thị trong bộ sưu tập cho người dùng
+        </p>
       </div>
 
       {/* Templates Grid */}
@@ -60,21 +75,19 @@ export default function AdminTemplatesPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((tpl) => (
-            <div key={tpl.id} className="admin-card overflow-hidden flex flex-col justify-between">
-              <div className="relative h-44 bg-gray-100">
+            <div key={tpl.id} className="admin-card overflow-hidden flex flex-col justify-between p-0 shadow-soft">
+              <div className="relative h-44 bg-neutral-100">
                 <img src={tpl.thumbnail_url} alt={tpl.name} className="w-full h-full object-cover" />
-                <span
-                  className={`absolute top-3 right-3 admin-badge ${
-                    tpl.is_active ? 'admin-badge-active' : 'admin-badge-inactive'
-                  } shadow-xs`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${tpl.is_active ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                  {tpl.is_active ? 'Active' : 'Hidden'}
-                </span>
+                <div className="absolute top-3 right-3 shadow-xs">
+                  <Badge variant={tpl.is_active ? 'success' : 'neutral'} size="sm">
+                    <span className={`w-1.5 h-1.5 rounded-full mr-1 inline-block ${tpl.is_active ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+                    {tpl.is_active ? 'Active' : 'Hidden'}
+                  </Badge>
+                </div>
               </div>
               <div className="p-5 space-y-3">
                 <div>
-                  <h3 className="font-semibold text-base text-admin-text">{tpl.name}</h3>
+                  <h3 className="font-semibold text-sm text-admin-text">{tpl.name}</h3>
                   <p className="text-admin-muted font-mono text-[11px] mt-0.5">slug: {tpl.slug}</p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-admin-muted">
@@ -84,7 +97,14 @@ export default function AdminTemplatesPage() {
                 </div>
                 <div className="pt-2">
                   <button
-                    onClick={() => handleToggle(tpl.id)}
+                    onClick={() => {
+                      if (tpl.is_active) {
+                        setToggleTarget(tpl);
+                      } else {
+                        // Immediately activate without dialog
+                        AdminService.toggleTemplateStatus(tpl.id).then(loadData);
+                      }
+                    }}
                     className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                       tpl.is_active
                         ? 'admin-btn-danger'
@@ -100,6 +120,19 @@ export default function AdminTemplatesPage() {
           ))}
         </div>
       )}
+
+      {/* Accessible ConfirmDialog for hiding template */}
+      <ConfirmDialog
+        isOpen={Boolean(toggleTarget)}
+        onClose={() => setToggleTarget(null)}
+        onConfirm={confirmToggle}
+        title="Ẩn mẫu thiệp khỏi thư viện"
+        message={`Bạn có chắc muốn ẩn mẫu "${toggleTarget?.name}"? Người dùng mới sẽ không thể nhìn thấy mẫu này khi duyệt thư viện thiệp cưới.`}
+        confirmText="Xác nhận ẩn"
+        cancelText="Hủy bỏ"
+        isDestructive={true}
+        isLoading={isToggling}
+      />
     </div>
   );
 }

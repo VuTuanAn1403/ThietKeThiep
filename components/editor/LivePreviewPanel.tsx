@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Smartphone, Monitor } from 'lucide-react';
+import { Smartphone, Tablet, Monitor } from 'lucide-react';
 import { Invitation, InvitationSection, StoryItem, GalleryImage } from '@/types/database.types';
 import InvitationRenderer from '@/components/invitation/InvitationRenderer';
 
@@ -18,7 +18,7 @@ export default function LivePreviewPanel({
   storyItems = [],
   galleryImages = [],
 }: Props) {
-  const [device, setDevice] = useState<'mobile' | 'desktop'>('mobile');
+  const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
 
   return (
     <div className="bg-[#FAF7F5] h-full flex flex-col items-center justify-between p-4 overflow-hidden border-l border-[#EAE4DF]">
@@ -26,19 +26,27 @@ export default function LivePreviewPanel({
       <div className="bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#EAE4DF] shadow-soft flex items-center gap-2 mb-4 z-10">
         <button
           onClick={() => setDevice('mobile')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             device === 'mobile' ? 'btn-luxury-primary text-white shadow-sm' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
-          <Smartphone className="w-3.5 h-3.5" /> Mobile Preview
+          <Smartphone className="w-3.5 h-3.5" /> Mobile (375px)
+        </button>
+        <button
+          onClick={() => setDevice('tablet')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+            device === 'tablet' ? 'btn-luxury-primary text-white shadow-sm' : 'text-[#756B70] hover:text-[#1F1B1C]'
+          }`}
+        >
+          <Tablet className="w-3.5 h-3.5" /> Tablet (768px)
         </button>
         <button
           onClick={() => setDevice('desktop')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             device === 'desktop' ? 'btn-luxury-primary text-white shadow-sm' : 'text-[#756B70] hover:text-[#1F1B1C]'
           }`}
         >
-          <Monitor className="w-3.5 h-3.5" /> Desktop Preview
+          <Monitor className="w-3.5 h-3.5" /> Desktop
         </button>
       </div>
 
@@ -48,6 +56,8 @@ export default function LivePreviewPanel({
           className={`transition-all duration-300 bg-white overflow-hidden shadow-floating border border-[#EAE4DF] ${
             device === 'mobile'
               ? 'w-[375px] h-[720px] rounded-[40px] ring-8 ring-[#1F1B1C] border-4 border-gray-800'
+              : device === 'tablet'
+              ? 'w-[768px] h-[750px] rounded-[32px] ring-6 ring-gray-700 border-4 border-gray-600'
               : 'w-full max-w-5xl h-[750px] rounded-3xl'
           }`}
         >

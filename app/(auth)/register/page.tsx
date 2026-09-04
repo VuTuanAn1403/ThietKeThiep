@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { User, Mail, Lock, ArrowRight, AlertCircle, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error');
   const { register } = useAuth();
 
   const [fullName, setFullName] = useState('');
@@ -17,6 +20,16 @@ export default function RegisterPage() {
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (errorParam === 'oauth_failed') {
+      setError('Đăng ký bằng Google không thành công. Vui lòng thử lại.');
+    } else if (errorParam === 'oauth_denied') {
+      setError('Bạn đã từ chối cấp quyền từ tài khoản Google.');
+    } else if (errorParam === 'account_suspended') {
+      setError('Tài khoản này đang bị tạm khóa. Vui lòng liên hệ quản trị viên.');
+    }
+  }, [errorParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +127,18 @@ export default function RegisterPage() {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Google OAuth Register */}
+          <div className="space-y-4">
+            <GoogleAuthButton redirectTo="/dashboard" onError={(err) => setError(err)} />
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-[#EAE4DF] w-full" />
+              <span className="bg-[#FFFDFB] px-3 text-[11px] font-semibold text-[#756B70] uppercase tracking-wider select-none absolute">
+                hoặc
+              </span>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -213,5 +238,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FFFDFB]" />}>
+      <RegisterForm />
+    </Suspense>
   );
 }

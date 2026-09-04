@@ -25,3 +25,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backups & dumps
+/backups/
+/.backups/
+*.dump
+*.sql.gz
+*.backup.json

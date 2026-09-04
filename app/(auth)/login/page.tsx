@@ -1,21 +1,35 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, ArrowRight, AlertCircle, Heart, Sparkles } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
+  const errorParam = searchParams.get('error');
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (errorParam === 'oauth_failed') {
+      setError('Đăng nhập bằng Google không thành công. Vui lòng thử lại.');
+    } else if (errorParam === 'oauth_denied') {
+      setError('Bạn đã từ chối cấp quyền truy cập từ Google.');
+    } else if (errorParam === 'account_suspended') {
+      setError('Tài khoản của bạn đang bị tạm khóa. Vui lòng liên hệ hỗ trợ.');
+    } else if (errorParam === 'invalid_code') {
+      setError('Mã ủy quyền Google không hợp lệ hoặc đã hết hạn.');
+    }
+  }, [errorParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +40,12 @@ function LoginForm() {
       const res = await login({ email, password });
       if (res.error) {
         setError(res.error);
-      } else {
-        router.push(redirectTo);
+      } else if (res.user) {
+        if (res.user.role === 'ADMIN') {
+          router.push('/admin');
+        } else {
+          router.push(redirectTo);
+        }
       }
     } catch {
       setError('Đã xảy ra lỗi khi đăng nhập.');
@@ -94,6 +112,18 @@ function LoginForm() {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Google OAuth Login */}
+          <div className="space-y-4">
+            <GoogleAuthButton redirectTo={redirectTo} onError={(err) => setError(err)} />
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-[#EAE4DF] w-full" />
+              <span className="bg-[#FFFDFB] px-3 text-[11px] font-semibold text-[#756B70] uppercase tracking-wider select-none absolute">
+                hoặc
+              </span>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>

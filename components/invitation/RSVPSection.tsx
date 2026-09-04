@@ -11,6 +11,8 @@ interface Props {
 }
 
 export default function RSVPSection({ invitation, guest }: Props) {
+  const [guestName, setGuestName] = useState<string>('');
+  const [guestPhone, setGuestPhone] = useState<string>('');
   const [attendance, setAttendance] = useState<RSVPAttendance>('ATTENDING');
   const [guestCount, setGuestCount] = useState<number>(1);
   const [note, setNote] = useState<string>('');
@@ -27,16 +29,37 @@ export default function RSVPSection({ invitation, guest }: Props) {
 
     try {
       if (!guest) {
-        // Public RSVP fallback without personalized link
-        setSubmitted(true);
+        if (!guestName.trim()) {
+          setError('Vui lòng nhập họ và tên của bạn.');
+          setLoading(false);
+          return;
+        }
+
+        const res = await RSVPService.submitPublicRSVP(invitation.id, {
+          guest_name: guestName.trim(),
+          phone: guestPhone.trim() || undefined,
+          attendance,
+          guest_count: attendance === 'NOT_ATTENDING' ? 0 : guestCount,
+          note: note.trim() || undefined,
+        });
+
+        if (res.error) {
+          setError(res.error);
+        } else {
+          setSubmitted(true);
+        }
         return;
       }
 
-      const res = await RSVPService.submitRSVP(guest.id, {
-        attendance,
-        guest_count: attendance === 'NOT_ATTENDING' ? 0 : guestCount,
-        note,
-      });
+      const res = await RSVPService.submitRSVP(
+        guest.id,
+        {
+          attendance,
+          guest_count: attendance === 'NOT_ATTENDING' ? 0 : guestCount,
+          note,
+        },
+        invitation.id
+      );
 
       if (res.error) {
         setError(res.error);
@@ -91,7 +114,7 @@ export default function RSVPSection({ invitation, guest }: Props) {
               </div>
             )}
 
-            {guest && (
+            {guest ? (
               <div className="p-4 rounded-2xl bg-[#FAF7F5] border border-[#EAE4DF] flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#E85B6A] flex items-center justify-center">
                   <UserCheck className="w-4 h-4" />
@@ -99,6 +122,34 @@ export default function RSVPSection({ invitation, guest }: Props) {
                 <div>
                   <div className="text-[11px] text-[#756B70] font-medium">Khách mời:</div>
                   <div className="text-sm font-bold text-[#1F1B1C]">{guest.name}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-[#1F1B1C] mb-1.5">
+                    Họ & Tên của bạn <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    className="w-full px-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E85B6A]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-[#1F1B1C] mb-1.5">
+                    Số điện thoại (tùy chọn)
+                  </label>
+                  <input
+                    type="tel"
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value)}
+                    placeholder="0901234567"
+                    className="w-full px-4 py-2.5 bg-[#FAF7F5] border border-[#EAE4DF] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E85B6A]"
+                  />
                 </div>
               </div>
             )}

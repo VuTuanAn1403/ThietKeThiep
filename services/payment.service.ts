@@ -267,6 +267,11 @@ export class PaymentService {
       return { success: false, error: 'Đơn hàng không tồn tại' };
     }
 
+    // Idempotency: Do not duplicate activation side-effects if order is already PAID
+    if (order.status === 'PAID') {
+      return { success: true, order };
+    }
+
     if (order.status === 'EXPIRED') {
       return { success: false, error: 'Không thể duyệt đơn hàng đã hết hạn' };
     }
@@ -322,6 +327,14 @@ export class PaymentService {
     const order = await this.getOrderById(orderId);
     if (!order) {
       return { success: false, error: 'Đơn hàng không tồn tại' };
+    }
+
+    // Idempotency: Do not reject already failed or paid order
+    if (order.status === 'FAILED') {
+      return { success: true, order };
+    }
+    if (order.status === 'PAID') {
+      return { success: false, error: 'Không thể từ chối đơn hàng đã thanh toán thành công' };
     }
 
     const now = new Date().toISOString();

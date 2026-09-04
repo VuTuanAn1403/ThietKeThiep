@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const rateLimitResponse = enforceRateLimit(request, 'feedback');
+  const rateLimitResponse = await enforceRateLimit(request, 'feedback');
   if (rateLimitResponse) return rateLimitResponse;
 
   const auth = await requireAuth();

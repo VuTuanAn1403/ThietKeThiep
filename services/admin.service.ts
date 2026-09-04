@@ -235,4 +235,51 @@ export class AdminService {
     inv.updated_at = new Date().toISOString();
     return inv;
   }
+
+  static async getGrowthMetrics(): Promise<Array<{ month: string; users: number; invitations: number }>> {
+    let usersList: UserProfile[] = [];
+    let invitationsList: import('@/types/database.types').Invitation[] = [];
+
+    if (this.isSupabaseConfigured()) {
+      try {
+        const supabase = createClient();
+        const [{ data: users }, { data: invitations }] = await Promise.all([
+          supabase.from('users').select('created_at'),
+          supabase.from('invitations').select('created_at'),
+        ]);
+        usersList = (users || []) as UserProfile[];
+        invitationsList = (invitations || []) as import('@/types/database.types').Invitation[];
+      } catch (err) {
+        console.error('Supabase getGrowthMetrics error:', err);
+      }
+    } else {
+      usersList = [...mockStore.users];
+      invitationsList = [...mockStore.invitations];
+    }
+
+    const months: Array<{ month: string; yearMonth: string; users: number; invitations: number }> = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = `T${d.getMonth() + 1}`;
+      months.push({ month: label, yearMonth: ym, users: 0, invitations: 0 });
+    }
+
+    for (const u of usersList) {
+      if (!u.created_at) continue;
+      const ym = u.created_at.slice(0, 7);
+      const match = months.find((m) => m.yearMonth === ym);
+      if (match) match.users++;
+    }
+
+    for (const inv of invitationsList) {
+      if (!inv.created_at) continue;
+      const ym = inv.created_at.slice(0, 7);
+      const match = months.find((m) => m.yearMonth === ym);
+      if (match) match.invitations++;
+    }
+
+    return months.map(({ month, users, invitations }) => ({ month, users, invitations }));
+  }
 }

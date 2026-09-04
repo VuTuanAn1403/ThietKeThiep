@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { AuthService } from '@/lib/auth/auth-service';
+import { enforceRateLimit } from '@/lib/security/rate-limiter';
+import { ErrorMonitoring } from '@/lib/monitoring/sentry';
 
 export async function POST(request: Request) {
+  const rateLimitResponse = await enforceRateLimit(request, 'login');
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -19,8 +24,9 @@ export async function POST(request: Request) {
     }
 
     if (res.user?.role !== 'ADMIN') {
+      await AuthService.logout();
       return NextResponse.json(
-        { error: 'Tài khoản không có quyền quản trị viên' },
+        { error: 'FORBIDDEN', message: 'Tài khoản không có quyền quản trị viên' },
         { status: 403 }
       );
     }

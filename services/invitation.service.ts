@@ -62,7 +62,7 @@ export class InvitationService {
         console.error('Supabase getInvitationBySlug error:', err);
       }
     }
-    return mockStore.invitations.find((i) => i.slug === slug) || null;
+    return mockStore.invitations.find((i) => i && i.slug === slug) || null;
   }
 
   static async getSections(invitationId: string): Promise<InvitationSection[]> {
@@ -180,12 +180,12 @@ export class InvitationService {
     }
 
     // Standalone fallback
-    const existing = mockStore.invitations.find((i) => i.slug === input.slug);
+    const existing = mockStore.invitations.find((i) => i && i.slug === input.slug);
     if (existing) {
       return { invitation: null, error: `Slug "${input.slug}" đã tồn tại. Vui lòng chọn slug khác.` };
     }
 
-    const invitationId = `inv-${Date.now()}`;
+    const invitationId = `inv-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     const newInvitation: Invitation = {
       id: invitationId,
       user_id: userId,

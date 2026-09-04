@@ -25,14 +25,13 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const rateLimitResponse = enforceRateLimit(request, 'rsvp');
-  if (rateLimitResponse) return rateLimitResponse;
-
   const { id } = await params;
+  const rateLimitResponse = await enforceRateLimit(request, 'rsvp', id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   try {
     const body = await request.json();
-    const { guestId, attendance, guestCount, note, captchaToken } = body;
+    const { guestId, guestName, phone, attendance, guestCount, note, captchaToken } = body;
 
     // 1. CAPTCHA Check
     const captchaRes = await verifyTurnstileToken(captchaToken);
@@ -40,14 +39,34 @@ export async function POST(
       return NextResponse.json({ error: captchaRes.error || 'Xác thực bảo vệ thất bại' }, { status: 403 });
     }
 
-    const res = await RSVPService.submitRSVP(guestId, {
-      attendance,
-      guest_count: guestCount ?? 1,
-      note,
-    });
+    let rsvpResult;
+    if (guestId) {
+      // Personalized RSVP with strict invitation ownership check
+      rsvpResult = await RSVPService.submitRSVP(
+        guestId,
+        {
+          attendance,
+          guest_count: guestCount ?? 1,
+          note,
+        },
+        id
+      );
+    } else if (guestName && guestName.trim()) {
+      // Anonymous / Public RSVP submission
+      rsvpResult = await RSVPService.submitPublicRSVP(id, {
+        guest_name: guestName,
+        attendance,
+        guest_count: guestCount ?? 1,
+        note,
+        phone,
+      });
+    } else {
+      return NextResponse.json({ error: 'Vui lòng cung cấp thông tin khách mời' }, { status: 422 });
+    }
 
-    if (res.error) {
-      return NextResponse.json({ error: res.error }, { status: 422 });
+    if (rsvpResult.error) {
+      const isForbidden = rsvpResult.error.includes('không thuộc');
+      return NextResponse.json({ error: rsvpResult.error }, { status: isForbidden ? 403 : 422 });
     }
 
     // 2. Trigger in-app notification for the invitation owner
@@ -66,7 +85,7 @@ export async function POST(
       // Non-blocking notification
     }
 
-    return NextResponse.json({ data: res.rsvp, message: 'Phản hồi RSVP thành công' }, { status: 201 });
+    return NextResponse.json({ data: rsvpResult.rsvp, message: 'Phản hồi RSVP thành công' }, { status: 201 });
   } catch (err) {
     ErrorMonitoring.captureException(err, { route: `/api/v1/invitations/${id}/rsvps` });
     return NextResponse.json({ error: 'Lỗi gửi RSVP' }, { status: 500 });

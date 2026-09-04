@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "npx tsx --test tests/*.test.ts"
+    "test": "npx tsx --test tests/*.test.ts",
+    "backup": "npx tsx scripts/backup.ts",
+    "restore:drill": "npx tsx scripts/restore.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

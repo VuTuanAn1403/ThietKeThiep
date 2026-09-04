@@ -42,7 +42,8 @@ export class RSVPService {
 
   static async submitRSVP(
     guestId: string,
-    input: RSVPInput
+    input: RSVPInput,
+    expectedInvitationId?: string
   ): Promise<{ rsvp: RSVP | null; error: string | null }> {
     let maxGuests = 1;
     if (this.isSupabaseConfigured()) {
@@ -50,11 +51,14 @@ export class RSVPService {
         const supabase = createClient();
         const { data: guest } = await supabase
           .from('guests')
-          .select('id, max_guests')
+          .select('id, invitation_id, max_guests')
           .eq('id', guestId)
           .single();
 
         if (!guest) return { rsvp: null, error: 'Không tìm thấy thông tin khách mời' };
+        if (expectedInvitationId && guest.invitation_id !== expectedInvitationId) {
+          return { rsvp: null, error: 'Khách mời không thuộc thiệp mời này' };
+        }
         maxGuests = guest.max_guests;
       } catch (err) {
         console.error('Supabase fetch guest max_guests error:', err);
@@ -62,6 +66,9 @@ export class RSVPService {
     } else {
       const guest = mockStore.guests.find((g) => g.id === guestId);
       if (!guest) return { rsvp: null, error: 'Không tìm thấy thông tin khách mời' };
+      if (expectedInvitationId && guest.invitation_id !== expectedInvitationId) {
+        return { rsvp: null, error: 'Khách mời không thuộc thiệp mời này' };
+      }
       maxGuests = guest.max_guests;
     }
 
@@ -145,6 +152,51 @@ export class RSVPService {
       mockStore.rsvps.push(newRSVP);
       return { rsvp: newRSVP, error: null };
     }
+  }
+
+  /**
+   * Submit RSVP for public visitors who don't have a personalized link
+   */
+  static async submitPublicRSVP(
+    invitationId: string,
+    input: {
+      guest_name: string;
+      attendance: RSVPAttendance;
+      guest_count: number;
+      note?: string | null;
+      phone?: string | null;
+    }
+  ): Promise<{ rsvp: RSVP | null; guest: any | null; error: string | null }> {
+    if (!input.guest_name || !input.guest_name.trim()) {
+      return { rsvp: null, guest: null, error: 'Vui lòng nhập họ và tên của bạn' };
+    }
+
+    const trimmedName = input.guest_name.trim();
+    const timestampSuffix = Date.now().toString(36).slice(-4);
+    const guestInput = {
+      name: trimmedName,
+      slug: `${trimmedName}-${timestampSuffix}`,
+      maxGuests: Math.max(input.guest_count || 1, 5),
+      phone: input.phone || null,
+      groupName: 'Khách vãng lai',
+    };
+
+    const { guest, error: guestError } = await GuestService.createGuest(invitationId, guestInput);
+    if (guestError || !guest) {
+      return { rsvp: null, guest: null, error: guestError || 'Không thể tạo thông tin khách mời' };
+    }
+
+    const { rsvp, error: rsvpError } = await this.submitRSVP(
+      guest.id,
+      {
+        attendance: input.attendance,
+        guest_count: input.attendance === 'NOT_ATTENDING' ? 0 : (input.guest_count || 1),
+        note: input.note || null,
+      },
+      invitationId
+    );
+
+    return { rsvp, guest, error: rsvpError };
   }
 
   static async getInvitationRSVPStats(invitationId: string): Promise<RSVPStats> {

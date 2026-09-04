@@ -12,6 +12,7 @@ interface AuthContextType {
   loading: boolean;
   login: (data: LoginInput) => Promise<{ user: UserProfile | null; error: string | null }>;
   register: (data: RegisterInput) => Promise<{ user: UserProfile | null; error: string | null }>;
+  loginWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   refresh: () => Promise<UserProfile | null>;
 }
@@ -22,15 +23,15 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => ({ user: null, error: null }),
   register: async () => ({ user: null, error: null }),
+  loginWithGoogle: async () => ({ error: null }),
   logout: async () => {},
   refresh: async () => null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // 1. Synchronous bootstrap from cookies/in-memory store on initial mount
-  const initialUser = typeof window !== 'undefined' ? AuthService.getCurrentUserSync() : null;
-  const [user, setUser] = useState<UserProfile | null>(initialUser);
-  const [loading, setLoading] = useState<boolean>(initialUser ? false : true);
+  // 1. Initial state starts deterministic for both SSR and hydration
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Request version counter to prevent race conditions from stale async requests
   const reqVersionRef = useRef(0);
@@ -119,6 +120,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res;
   };
 
+  const loginWithGoogle = async (redirectTo?: string) => {
+    return AuthService.loginWithGoogle(redirectTo);
+  };
+
   const logout = async () => {
     // Invalidate any ongoing in-flight verification requests
     ++reqVersionRef.current;
@@ -136,6 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        loginWithGoogle,
         logout,
         refresh,
       }}

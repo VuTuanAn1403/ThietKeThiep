@@ -58,8 +58,36 @@ graph TD
 | **AUTH-SEC-01** | **Tampered Role Cookie Prevention** | Người dùng thường sửa cookie `role=ADMIN`. Hệ thống phải tra cứu DB và trả về `role=USER`, từ chối quyền Admin. | ✅ **PASS** |
 | **AUTH-SEC-02** | **Cross-User Ownership Isolation** | User A cố ý truy cập và thao tác trên thiệp mời của User B. Hệ thống từ chối quyền sở hữu. | ✅ **PASS** |
 | **AUTH-SEC-03** | **Anonymous Dashboard Guard** | Khách chưa đăng nhập vào `/dashboard` bị chuyển hướng về `/login?redirect=%2Fdashboard`. | ✅ **PASS** |
-| **AUTH-SEC-04** | **Anonymous Admin Guard** | Khách chưa đăng nhập vào `/admin` bị chuyển hướng về `/admin/login?redirect=%2Fadmin`. | ✅ **PASS** |
-| **AUTH-SEC-05** | **User Role Admin Protection** | User đăng nhập vào `/admin` bị chuyển hướng về `/403`. | ✅ **PASS** |
+| **AUTH-SEC-09** | **Google OAuth USER Guard** | Đăng nhập Google tài khoản mới mặc định cấp quyền `USER`, không thể bypass vào `/admin`. | ✅ **PASS** |
+| **AUTH-SEC-10** | **Cryptographic HMAC Session Verifier** | Cookie bị đổi `role=ADMIN` nhưng thiếu chữ ký HMAC bị từ chối ngay tại Edge Middleware với 403. | ✅ **PASS** |
+| **AUTH-SEC-11** | **Admin API Strict Guard** | Normal USER gọi `/api/v1/admin/users` hoặc `/api/admin/users` nhận 403 Forbidden. | ✅ **PASS** |
+| **AUTH-SEC-12** | **Role Escalation Prevention** | Normal USER gửi `PATCH /api/v1/me` với `role: "ADMIN"` bị từ chối 403 Forbidden (`ROLE_ESCALATION_FORBIDDEN`). | ✅ **PASS** |
+| **AUTH-SEC-13** | **Suspended Account Enforcement** | Tài khoản có trạng thái `SUSPENDED` bị chặn đăng nhập và từ chối mọi phiên truy cập. | ✅ **PASS** |
+
+---
+
+## 4. BẢO MẬT PHÂN QUYỀN ADMIN NÂNG CAO (2026 SECURITY HARDENING)
+
+### 4.1. Chống Role Spoofing bằng Cryptographic HMAC-SHA256 Token
+* Module [`lib/auth/session-token.ts`](file:///c:/thiepcuoi/nha-co-tiec/lib/auth/session-token.ts) sinh token phiên làm việc có chữ ký số mật mã `nha_co_tiec_session`.
+* Định dạng: `${userId}.${role}.${timestamp}.${hmacSignature}`.
+* Nếu kẻ tấn công thay đổi vai trò trong cookie (ví dụ sửa `USER` thành `ADMIN`), chữ ký HMAC không khớp và bị Edge Middleware phát hiện ngay lập tức, chuyển hướng tới `/403`.
+
+### 4.2. Phân định luồng Đăng nhập & Điều hướng (Dedicated Login Flows)
+1. **Trang đăng nhập người dùng (`/login`)**:
+   - Tài khoản `USER`: Chuyển hướng tới `/dashboard`.
+   - Tài khoản `ADMIN`: Tự động nhận diện và chuyển hướng an toàn tới `/admin`.
+2. **Trang đăng nhập quản trị (`/admin/login`)**:
+   - Tài khoản `ADMIN`: Chuyển hướng tới `/admin`.
+   - Tài khoản `USER`: Xóa phiên làm việc và chuyển hướng ngay lập tức tới **/403 Forbidden** (không redirect về dashboard để phân biệt rõ Unauthorized vs Unauthenticated).
+
+### 4.3. Kiểm soát Trạng thái Tài khoản (Account Status)
+* Mọi luồng đăng nhập và khôi phục phiên làm việc đều bắt buộc kiểm tra `status === 'ACTIVE'`.
+* Tài khoản bị `SUSPENDED` (tạm khóa) bị từ chối đăng nhập với thông báo: `"Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên."`.
+
+### 4.4. Bảo vệ Toàn bộ Admin APIs (`requireAdmin`)
+* Tất cả endpoint Quản trị (`/api/v1/admin/users`, `/api/admin/users`, `/api/v1/admin/templates`, `/api/v1/admin/categories`, `/api/v1/admin/audit-logs`, `/api/v1/admin/payments`) bắt buộc gọi `requireAdmin()`.
+* Bất kỳ người dùng phổ thông nào gọi các API này đều nhận về mã lỗi HTTP **403 Forbidden**.
 | **AUTH-SEC-06** | **Admin Role Access** | Admin đăng nhập vào `/admin` được cấp quyền truy cập hợp lệ (Status 200). | ✅ **PASS** |
 | **AUTH-SEC-07** | **Session Route Persistence** | Session duy trì ổn định qua các bước chuyển trang `/dashboard` ↔ `/` ↔ `/templates`. | ✅ **PASS** |
 | **AUTH-SEC-08** | **Session Hard Refresh Persistence** | Session được khôi phục chính xác từ cookie khi tải lại trang (F5/Hard refresh). | ✅ **PASS** |
@@ -82,5 +110,28 @@ graph TD
 
 ---
 
-## 5. KẾT LUẬN
-Toàn bộ các tiêu chuẩn bảo mật trong yêu cầu **FINAL AUTH SECURITY HARDENING** đã được kiểm tra, xác thực và vượt qua toàn bộ 38 bài kiểm thử tự động, kiểm tra strict typecheck và biên dịch production build thành công 100%.
+## 5. GOOGLE OAUTH ARCHITECTURE & ANTI-ABUSE CONTROLS
+
+### 5.1 Kiến trúc luồng xác thực Google OAuth (SSR / PKCE Flow)
+1. **Khởi tạo phía Client**: Người dùng bấm `Tiếp tục với Google` trên trang `/login` hoặc `/register`. Client gọi `supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: '${origin}/auth/callback?next=...' } })`.
+2. **Google Cloud Console**:
+   - `Authorized JavaScript origins`: `http://localhost:3000`, `https://thiet-ke-thiep.vercel.app`.
+   - `Authorized redirect URIs`: `https://<supabase-project-id>.supabase.co/auth/v1/callback` (Callback mặc định của Supabase Auth).
+3. **Supabase Auth URL Configuration**:
+   - Thêm URL chuyển hướng vào allowlist: `http://localhost:3000/auth/callback`, `https://thiet-ke-thiep.vercel.app/auth/callback`.
+4. **Xử lý tại Server Callback ([app/auth/callback/route.ts](file:///c:/thiepcuoi/nha-co-tiec/app/auth/callback/route.ts))**:
+   - **Chống Open Redirect**: Kiểm tra tham số `next`, chỉ cho phép đường dẫn cục bộ an toàn (`/` và không chứa `//` hoặc `://`).
+   - **Trao đổi mã bảo mật PKCE**: Trao đổi `code` lấy session token trực tiếp trên server qua `supabase.auth.exchangeCodeForSession(code)`.
+   - **Đồng bộ hồ sơ người dùng (Profile Sync)**:
+     - Khởi tạo profile trong bảng `users` với vai trò chuẩn `USER` và trạng thái `ACTIVE`.
+   - **Bảo vệ tài khoản trùng lặp (Duplicate Account Protection)**:
+     - Nếu người dùng đã từng đăng ký bằng Email & Mật khẩu trước đó, hệ thống liên kết danh tính Google vào đúng tài khoản hiện có mà không sinh thêm tài khoản thứ hai.
+   - **Bảo toàn Phân quyền & Trạng thái**:
+     - Tài khoản Admin khi đăng nhập qua Google vẫn giữ nguyên quyền `ADMIN` từ cơ sở dữ liệu (tuyệt đối không bao giờ tự động nâng quyền Admin cho tài khoản mới).
+     - Tài khoản bị khóa (`SUSPENDED`) lập tức bị hủy phiên và chặn truy cập.
+
+---
+
+## 6. KẾT LUẬN
+Toàn bộ các tiêu chuẩn bảo mật trong hệ thống xác thực (Email/Password và Google OAuth) đã được kiểm tra, xác thực và vượt qua toàn bộ các bài kiểm thử tự động, kiểm tra strict typecheck và biên dịch production build thành công 100%.
+

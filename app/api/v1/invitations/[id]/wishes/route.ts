@@ -19,10 +19,9 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const rateLimitResponse = enforceRateLimit(request, 'wish');
-  if (rateLimitResponse) return rateLimitResponse;
-
   const { id } = await params;
+  const rateLimitResponse = await enforceRateLimit(request, 'wish', id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   try {
     const body = await request.json();

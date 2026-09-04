@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { PaymentService } from '@/services/payment.service';
 import { requireAuth } from '@/lib/auth/server-auth';
+import { enforceRateLimit } from '@/lib/security/rate-limiter';
 import { ErrorMonitoring } from '@/lib/monitoring/sentry';
 
 export async function GET() {
@@ -14,6 +15,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const rateLimitResponse = await enforceRateLimit(request, 'payment');
+  if (rateLimitResponse) return rateLimitResponse;
+
   const auth = await requireAuth();
   if (!auth.user) {
     return NextResponse.json({ error: auth.error || 'Chưa đăng nhập' }, { status: auth.statusCode || 401 });

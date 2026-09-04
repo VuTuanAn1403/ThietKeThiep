@@ -20,7 +20,11 @@ export default function EditInvitationPage() {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'unsaved' | 'saving' | 'error'>('saved');
   const [toastMsg, setToastMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   useEffect(() => {
     async function load() {
@@ -42,6 +46,28 @@ export default function EditInvitationPage() {
     load();
   }, [invitationId]);
 
+  // Warn user on browser reload/leave if unsaved changes exist
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (saveStatus === 'unsaved') {
+        e.preventDefault();
+        e.returnValue = 'Bạn có thay đổi chưa lưu. Bạn có chắc muốn rời đi không?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus]);
+
+  // Debounced auto-save (triggers 2.5s after user stops editing)
+  useEffect(() => {
+    if (saveStatus !== 'unsaved' || !invitation) return;
+    const timer = setTimeout(() => {
+      handleSave();
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [saveStatus, invitation, sections]);
+
   const showToast = (text: string, type: 'success' | 'error') => {
     setToastMsg({ text, type });
     setTimeout(() => setToastMsg(null), 4000);
@@ -50,15 +76,18 @@ export default function EditInvitationPage() {
   const handleSave = async () => {
     if (!invitation) return;
     setSaving(true);
+    setSaveStatus('saving');
     try {
       const res = await InvitationService.updateInvitation(invitation.id, invitation);
       if (res.error) {
+        setSaveStatus('error');
         showToast(res.error, 'error');
       } else {
         await InvitationService.updateSections(invitation.id, sections);
-        showToast('Đã lưu thành công các thay đổi!', 'success');
+        setSaveStatus('saved');
       }
     } catch {
+      setSaveStatus('error');
       showToast('Đã xảy ra lỗi khi lưu.', 'error');
     } finally {
       setSaving(false);
@@ -74,7 +103,7 @@ export default function EditInvitationPage() {
         showToast(res.error, 'error');
       } else {
         setInvitation({ ...invitation, status: 'PUBLISHED' });
-        showToast('Đã xuất bản thiệp thành công! Bạn có thể chia sẻ link ngay.', 'success');
+        setShowPublishModal(true);
       }
     } catch {
       showToast('Đã xảy ra lỗi khi xuất bản.', 'error');
@@ -135,6 +164,26 @@ export default function EditInvitationPage() {
           </span>
         </div>
 
+        {/* Mobile View Toggle */}
+        <div className="flex lg:hidden items-center bg-[#FAF7F5] p-1 rounded-xl border border-[#E8DFD8]">
+          <button
+            onClick={() => setMobileView('editor')}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              mobileView === 'editor' ? 'bg-white text-[#1F1B1C] shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            Chỉnh sửa
+          </button>
+          <button
+            onClick={() => setMobileView('preview')}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              mobileView === 'preview' ? 'bg-white text-[#1F1B1C] shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            Xem trước
+          </button>
+        </div>
+
         <div className="flex items-center gap-2">
           {invitation.status === 'PUBLISHED' && (
             <a
@@ -169,22 +218,29 @@ export default function EditInvitationPage() {
 
       {/* Main Split Content: Left Editor Control Panel (40%), Right Live Preview (60%) */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-        <div className="lg:col-span-5 h-full overflow-hidden">
+        <div className={`${mobileView === 'editor' ? 'block' : 'hidden'} lg:block lg:col-span-5 h-full overflow-hidden`}>
           <EditorPanel
             invitation={invitation}
             sections={sections}
             galleryImages={galleryImages}
-            onChangeInvitation={(updates) => setInvitation({ ...invitation, ...updates })}
-            onChangeSections={(updatedSecs) => setSections(updatedSecs)}
+            onChangeInvitation={(updates) => {
+              setInvitation({ ...invitation, ...updates });
+              setSaveStatus('unsaved');
+            }}
+            onChangeSections={(updatedSecs) => {
+              setSections(updatedSecs);
+              setSaveStatus('unsaved');
+            }}
             onAddGalleryImage={handleAddGalleryImage}
             onDeleteGalleryImage={handleDeleteGalleryImage}
             onSave={handleSave}
             onPublish={handlePublish}
             saving={saving}
+            saveStatus={saveStatus}
           />
         </div>
 
-        <div className="hidden lg:block lg:col-span-7 h-full overflow-hidden">
+        <div className={`${mobileView === 'preview' ? 'block' : 'hidden'} lg:block lg:col-span-7 h-full overflow-hidden`}>
           <LivePreviewPanel
             invitation={invitation}
             sections={sections}
@@ -193,6 +249,58 @@ export default function EditInvitationPage() {
           />
         </div>
       </div>
+
+      {/* Publish Success Confirmation Modal */}
+      {showPublishModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-floating border border-[#E8DFD8] text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xl font-serif font-bold text-[#1F1B1C]">Thiệp Đã Sẵn Sàng Chia Sẻ!</h3>
+              <p className="text-xs text-gray-500">
+                Thiệp mời của bạn đã được xuất bản trực tuyến thành công.
+              </p>
+            </div>
+
+            {/* Public Link Box */}
+            <div className="p-3 bg-[#FAF7F5] rounded-2xl border border-[#E8DFD8] flex items-center justify-between gap-2 text-left">
+              <div className="truncate text-xs font-mono text-gray-700 select-all">
+                {typeof window !== 'undefined' ? `${window.location.origin}/i/${invitation.slug}` : `/i/${invitation.slug}`}
+              </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/i/${invitation.slug}`;
+                  navigator.clipboard.writeText(url);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 2000);
+                }}
+                className="px-3 py-1.5 rounded-xl btn-luxury-primary text-white text-xs font-semibold flex-shrink-0 cursor-pointer"
+              >
+                {copiedLink ? 'Đã sao chép ✓' : 'Sao chép'}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <a
+                href={`/i/${invitation.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-2.5 rounded-xl border border-[#E8DFD8] text-xs font-semibold text-[#1F1B1C] hover:bg-[#FAF7F5] transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Eye className="w-4 h-4 text-[#B76E79]" /> Xem Thiệp
+              </a>
+              <button
+                onClick={() => setShowPublishModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-gray-100 text-xs font-semibold text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                Hoàn tất
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

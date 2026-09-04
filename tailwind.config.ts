@@ -9,6 +9,43 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+          soft: "var(--primary-soft)",
+        },
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        border: "var(--border)",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)",
+        aurora: {
+          bg: "#0B0B12",        // nền tối chủ đạo
+          surface: "#12121C",   // nền card/section
+          glass: "rgba(255,255,255,0.06)",   // nền kính mờ
+          glassBorder: "rgba(255,255,255,0.12)",
+          violet: "#7C3AED",
+          pink: "#EC4899",
+          cyan: "#22D3EE",
+          indigo: "#6366F1",
+        },
         brand: {
           bg: "#FFFDFB",
           ivory: "#FFFDFB",
@@ -38,6 +75,10 @@ const config: Config = {
           warning: "#D97706",
           danger: "#DC2626",
         },
+      },
+      backgroundImage: {
+        "aurora-gradient": "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
+        "aurora-gradient-alt": "linear-gradient(135deg, #22D3EE 0%, #6366F1 100%)",
       },
       fontFamily: {
         serif: ["Cormorant Garamond", "Playfair Display", "Georgia", "serif"],

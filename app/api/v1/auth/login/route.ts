@@ -4,7 +4,7 @@ import { enforceRateLimit } from '@/lib/security/rate-limiter';
 import { ErrorMonitoring } from '@/lib/monitoring/sentry';
 
 export async function POST(request: Request) {
-  const rateLimitResponse = enforceRateLimit(request, 'login');
+  const rateLimitResponse = await enforceRateLimit(request, 'login');
   if (rateLimitResponse) return rateLimitResponse;
 
   try {
